@@ -1,0 +1,5 @@
+output/
+__pycache__
+
+misc.py
+simple.py
