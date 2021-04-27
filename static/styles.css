@@ -1,9 +1,9 @@
-#video_container  {
+.container  {
   width: 100%;
 
 }
 
-#stream {
+.stream {
   min-width: 480px;
   max-width: 1280px !important;
   width: 60%;

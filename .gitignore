@@ -1,5 +1,10 @@
 output/
 __pycache__
 
+# Files used for miscellaneous scripting development
 misc.py
 simple.py
+app.py
+
+stream_frames/
+clients.txt

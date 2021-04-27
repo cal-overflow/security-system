@@ -9,14 +9,16 @@ import cameraFunctions as cf
 #HOST = '0.0.0.0'
 HOST = '127.0.0.1'
 PORT = 8000
-processes = []
-frames = {}
+MAX_CLIENTS = 5
+CLIENTS = 0
 SECONDS = 10
+PROCESSES = []
+FRAMES = {}
 
-def stream_camera(client, address):
-    '''Handle a client connecting'''
+def stream_camera(client, address, CLIENTS):
+    '''Stream video from a client'''
 
-    frames[address[1]] = []
+    FRAMES[address[1]] = []
     package_size = struct.calcsize("P")
     recording = False
     while True:
@@ -30,7 +32,15 @@ def stream_camera(client, address):
                 # Close connection since nothing was received (client is not communicating)
                 client.close()
                 print('Socket {} disconnected'.format(address[1]))
-                frames.pop(address[1], None)
+                # TODO: remove this (id) process (maybe)
+                # YES! I was correct. Must remove this process/id. I don't think this is working yet...
+                # PROCESSES.pop(id) #TODO need to figure this out (no longer pass id as param)
+                FRAMES.pop(address[1], None)
+                CLIENTS -= 1
+
+                # Cheap solution. #TODO: Fix this
+                with open('clients.txt', 'w') as file:
+                    file.write(str(CLIENTS))
                 return
             else:
                 data += received
@@ -45,50 +55,64 @@ def stream_camera(client, address):
         pickled_data = data[:msg_size]
         data = data[msg_size:]
         data = pickle.loads(pickled_data)
-        # data = {'img': image, 'motion': boolean, 'FPS': fps, 'WIDTH': width, 'HEIGHT': height}
 
-        temp_frames = frames[address[1]]
+        # Update frames
+        temp_frames = FRAMES[address[1]]
         temp_frames.append(data)
         if len(temp_frames) > data['FPS'] * SECONDS and not recording:
             temp_frames.pop(0)
-        frames[address[1]] = temp_frames
+        FRAMES[address[1]] = temp_frames
 
-        processed_frame = frames[address[1]][-1]['FRAME']
+        processed_frame = FRAMES[address[1]][-1]['FRAME']
 
-        if data['MOTION'] or recording:
-            recording, output_file = cf.record(frames[address[1]], recording, SECONDS)
-            processed_frame = cf.drawRecording(frames[address[1]][-1]['FRAME'], frames[address[1]][-1]['WIDTH'], frames[address[1]][-1]['HEIGHT'])
+        # If there is motion in this frame or there was recently motion (and it is recording), then act accordingly
+        #if data['MOTION'] or recording:
+            #recording, output_file = cf.record(FRAMES[address[1]], recording, SECONDS)
+            #processed_frame = cf.drawRecording(FRAMES[address[1]][-1]['FRAME'], FRAMES[address[1]][-1]['WIDTH'], FRAMES[address[1]][-1]['HEIGHT'])
 
-            if not recording:
-                # No longer recording. Throw away all but last few frames
-                temp_frames = frames[address[1]]
-                temp_frames = temp_frames[(len(temp_frames) - (data['FPS'] * SECONDS)):]
-                frames[address[1]] = temp_frames
-                print('Video saved to', output_file)
+            #if not recording:
+                # No longer recording. Throw away all but last few FRAMES
+                #temp_frames = FRAMES[address[1]]
+                #temp_frames = temp_frames[(len(temp_frames) - (data['FPS'] * SECONDS)):]
+                #FRAMES[address[1]] = temp_frames
+                #print('Video saved to', output_file)
+
+
+        # Write this last frame to a file called <CLIENTS (or the id of this client)>.jpg, which will then be used by flask server
+        # 9 millisecond intervals where ms 0-5 are for reading # TODO: fix this (see webserver.py's TODO comments)
+        if (0 <= int(time.time() * 1000) % 10 <= 5):
+            filename = 'stream_frames/{}.jpg'.format(CLIENTS)
+            cv.imwrite(filename, processed_frame)
 
         cv.imshow('Client: {} ({})'.format(address[1], address[0]), processed_frame)
         cv.waitKey(1)
 
-# Create Server (socket) and bind it to a address/port.
-server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-server.bind((HOST, PORT))
-server.listen(5) # maximum of 5 sockets (devices) can connect. This can be increased
-print('Listening for sockets')
+if __name__ == '__main__':
+    print('socket server running')
+    # Create Server (socket) and bind it to a address/port.
+    server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    server.bind((HOST, PORT))
+    server.listen(MAX_CLIENTS)
+    print('Listening for sockets')
 
-while True:
-    # Accept connection
-    client, address = server.accept()
-    print('Socket Connection:', address)
+    while True:
+        with open('clients.txt', 'w') as file:
+            file.write(str(CLIENTS))
 
-    # Create, save, and start process (camera stream)
-    p = process(target=stream_camera, args=(client, address,))
-    processes.append(p)
-    p.start()
+        # Accept connection
+        client, address = server.accept()
+        CLIENTS += 1
+        print('Socket Connection:', address) # TODO: delete
 
-# Clear processes
-for p in processes:
-    p.join() # Joining all processes
+        # Create, save, and start process (camera stream)
+        p = process(target=stream_camera, args=(client, address, CLIENTS))
+        PROCESSES.append(p)
+        p.start()
 
-# Close server connection
-cv.destroyAllWindows()
-socket.close()
+    # Clear PROCESSES
+    for p in PROCESSES:
+        p.join() # Join all PROCESSES
+
+    # Close server connection
+    cv.destroyAllWindows()
+    socket.close()

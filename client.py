@@ -41,7 +41,7 @@ while camera.isOpened():
         server.sendall(struct.pack("L", len(pickled_data))+pickled_data)
 
     # Handle connection issue
-    except socket.error:
+    except:
         connected = False
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
