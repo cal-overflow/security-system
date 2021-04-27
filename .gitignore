@@ -1,4 +1,3 @@
-output/
 __pycache__
 
 # Files used for miscellaneous scripting development
@@ -7,4 +6,5 @@ simple.py
 app.py
 
 stream_frames/
+output/
 clients.txt

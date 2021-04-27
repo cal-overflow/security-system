@@ -12,8 +12,8 @@
               <span>{{count}}</span>
             </h5>
             {%for i in range(count)%}
-            <div class="container" id="container{{count}}">
-              <img class="stream" id="stream{{count}}" src="{{ url_for('video_feed', id=count) }}">
+            <div class="container" id="container{{i}}">
+              <img class="stream" id="stream{{i}}" src="{{ url_for('video_feed', id=i) }}">
             </div>
             {% endfor %}
         </div>

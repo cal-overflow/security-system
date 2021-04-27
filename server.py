@@ -6,8 +6,8 @@ import time
 from multiprocessing import Process as process
 import cameraFunctions as cf
 
-#HOST = '0.0.0.0'
-HOST = '127.0.0.1'
+HOST = '0.0.0.0'
+#HOST = '127.0.0.1'
 PORT = 8000
 MAX_CLIENTS = 5
 CLIENTS = 0
@@ -18,11 +18,16 @@ FRAMES = {}
 def stream_camera(client, address, CLIENTS):
     '''Stream video from a client'''
 
+    #TODO: fix this
+    if CLIENTS >= 5:
+        return
+
     FRAMES[address[1]] = []
     package_size = struct.calcsize("P")
     recording = False
     while True:
         data, message_size, msg_size = b'', None, None
+        print('hello')
         # Recieve data stream from socket (client)
 
         while len(data) < package_size:
@@ -34,8 +39,9 @@ def stream_camera(client, address, CLIENTS):
                 print('Socket {} disconnected'.format(address[1]))
                 # TODO: remove this (id) process (maybe)
                 # YES! I was correct. Must remove this process/id. I don't think this is working yet...
-                # PROCESSES.pop(id) #TODO need to figure this out (no longer pass id as param)
+                PROCESSES.pop(CLIENTS) #TODO need to figure this out (no longer pass id as param)
                 FRAMES.pop(address[1], None)
+                print(CLIENTS)
                 CLIENTS -= 1
 
                 # Cheap solution. #TODO: Fix this
@@ -64,6 +70,7 @@ def stream_camera(client, address, CLIENTS):
         FRAMES[address[1]] = temp_frames
 
         processed_frame = FRAMES[address[1]][-1]['FRAME']
+        print('what')
 
         # If there is motion in this frame or there was recently motion (and it is recording), then act accordingly
         #if data['MOTION'] or recording:
