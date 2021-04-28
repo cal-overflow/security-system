@@ -46,33 +46,35 @@ def main():
                 }
         pickled_data = pickle.dumps(data)
 
-        try:
-            server.sendall(struct.pack("L", len(pickled_data))+pickled_data)
+        # TODO:
+        server.sendall(struct.pack("P", len(pickled_data))+pickled_data)
+        #try:
+            #server.sendall(struct.pack("P", len(pickled_data))+pickled_data)
             #print('sent') # TODO: delete
 
         # Handle connection issues
-        except socket.error:
-            print('{} [INFO]: Connection to server disrupted'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-            connected = False
-            server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        #except socket.error:
+            #print('{} [INFO]: Connection to server disrupted'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+            #connected = False
+            #server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
             # Try to reconnect
-            while not connected:
-                try:
-                    server.connect((HOST, PORT))
-                    connected = True
-                    if connection_failed:
+            #while not connected:
+                #try:
+                    #server.connect((HOST, PORT))
+                    #connected = True
+                    #if connection_failed:
                         # Connection was re-established after it recently failed
-                        print('{} [INFO]: Re-established connection with server'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-                        connection_failed = False
+                        #print('{} [INFO]: Re-established connection with server'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+                        #connection_failed = False
                     # Connection re-established
-                except socket.error:
-                    connected = False
-                    connection_failed = True
-                    camera.release()
-                    time.sleep(5) # Wait 5 seconds before trying to reconnect
-                    print('{} [INFO]: Attempting to re-establish connection with server'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-                    camera.open(0)
+                #except socket.error:
+                    #connected = False
+                    #connection_failed = True
+                    #camera.release()
+                    #time.sleep(5) # Wait 5 seconds before trying to reconnect
+                    #print('{} [INFO]: Attempting to re-establish connection with server'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+                    #camera.open(0)
 
         # TODO: change this (delete imshow, remove ord('q'), etc.)
         #cv.imshow('frame', frame1)

@@ -33,30 +33,30 @@ def stream_camera(client, address):
         while len(data) < package_size:
             received = client.recv(4096)
 
-            if not received:
-                # Close connection since nothing was received (client is not communicating)
-                client.close()
-                print('Socket {} disconnected'.format(address[1]))
-                # TODO: remove this (id) process (maybe)
-                # YES! I was correct. Must remove this process/id. I don't think this is working yet...
-                #PROCESSES.pop(CLIENTS) #TODO need to figure this out (no longer pass id as param)
-                FRAMES.pop(address[1], None)
-                helper.updateClientCount(helper.getClientCount() - 1)
-                print(helper.getClientCount())
-                return # exit function
-            else:
-                data += received
+            #if not received:
+                    # comments indented like this are commented out
+                    # Close connection since nothing was received (client is not communicating)
+                #client.close()
+                #print('Socket {} disconnected'.format(address[1]))
+                    # TODO: remove this (id) process (maybe)
+                    # YES! I was correct. Must remove this process/id. I don't think this is working yet...
+                    #PROCESSES.pop(CLIENTS) #TODO need to figure this out (no longer pass id as param)
+                #FRAMES.pop(address[1], None)
+                #helper.updateClientCount(helper.getClientCount() - 1)
+                #print(helper.getClientCount())
+                #return # exit function
+            #else:
+            data += received # TODO: this goes in else statement
 
         message_size = data[:package_size]
         data = data[package_size:]
         msg_size = struct.unpack("P", message_size)[0]
-        print(msg_size) # TODO: DELETE
 
         while len(data) < msg_size:
+            print(len(data),'<',msg_size) # TODO: delete
+            print('second loop: receiving data')  # TODO: delete
             data += client.recv(4096)
 
-        if address[0] != '127.0.0.1': # TODO: delete
-            print('package received', address[1]) # TODO: delete
         pickled_data = data[:msg_size]
         data = data[msg_size:]
         data = pickle.loads(pickled_data)
