@@ -24,29 +24,29 @@ def stream_camera(client, address):
     alternator = True
     #FRAMES[address[1]] = [] # TODO: restore
     package_size = struct.calcsize("P")
+    data, message_size, msg_size = b'', None, None
     #recording = False #TODO: restore
     while True:
         #print(address, 'here')
-        data, message_size, msg_size = b'', None, None
+
 
         # Recieve data stream from socket (client)
         while len(data) < package_size:
             received = client.recv(4096)
 
-            #if not received:
-                    # comments indented like this are commented out
+            if not received:
                     # Close connection since nothing was received (client is not communicating)
-                #client.close()
-                #print('Socket {} disconnected'.format(address[1]))
-                    # TODO: remove this (id) process (maybe)
-                    # YES! I was correct. Must remove this process/id. I don't think this is working yet...
-                    #PROCESSES.pop(CLIENTS) #TODO need to figure this out (no longer pass id as param)
-                #FRAMES.pop(address[1], None)
-                #helper.updateClientCount(helper.getClientCount() - 1)
-                #print(helper.getClientCount())
-                #return # exit function
-            #else:
-            data += received # TODO: this goes in else statement
+                client.close()
+                print('Socket {} disconnected'.format(address[1]))
+                # TODO: remove this (id) process (maybe)
+                # YES! I was correct. Must remove this process/id. I don't think this is working yet...
+                #PROCESSES.pop(CLIENTS) #TODO need to figure this out (no longer pass id as param)
+                FRAMES.pop(address[1], None)
+                helper.updateClientCount(helper.getClientCount() - 1)
+                print(helper.getClientCount())
+                return # exit function
+            else:
+                data += received
 
         message_size = data[:package_size]
         data = data[package_size:]

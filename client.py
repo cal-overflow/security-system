@@ -25,7 +25,7 @@ def main():
     camera = cv.VideoCapture(0)
     if not camera.isOpened():
         # Attempt to open capture device once more, after a failure
-        camera.open(0)
+        camera.open()
         if not camera.isOpened():
             print('{} [INFO]: Issue opening camera'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
             exit()
@@ -38,56 +38,47 @@ def main():
     while camera.isOpened():
         detected_motion, motion_frame = helper.detectMotion(frame1, frame2, int(camera.get(3)), int(camera.get(4)))
         frame = helper.drawTime(motion_frame, int(camera.get(3)), int(camera.get(4)))
-        # RESTORE
-        #data = {'FRAME': frame,
-                #'MOTION': detected_motion,
-                #'FPS': FPS,
-                #'WIDTH': int(camera.get(3)),
-                #'HEIGHT': int(camera.get(4))
-                #}
-        #pickled_data = pickle.dumps(data)
+        data = {'FRAME': frame,
+                'MOTION': detected_motion,
+                'FPS': FPS,
+                'WIDTH': int(camera.get(3)),
+                'HEIGHT': int(camera.get(4))
+                }
+        pickled_data = pickle.dumps(data)
 
-        pickled_data = pickle.dumps(frame)
-
-        # TODO:
-        server.sendall(struct.pack("P", len(pickled_data))+pickled_data)
-        #try:
-            #server.sendall(struct.pack("P", len(pickled_data))+pickled_data)
-            #print('sent') # TODO: delete
+        #pickled_data = pickle.dumps(frame) # TODO: delete
+        #server.sendall(struct.pack("P", len(pickled_data))+pickled_data) # TODO: delete
+        try:
+            server.sendall(struct.pack("P", len(pickled_data))+pickled_data)
+            print('sent') # TODO: delete
 
         # Handle connection issues
-        #except socket.error:
-            #print('{} [INFO]: Connection to server disrupted'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-            #connected = False
-            #server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+        except socket.error:
+            print('{} [INFO]: Connection to server disrupted'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+            connected = False
+            server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
             # Try to reconnect
-            #while not connected:
-                #try:
-                    #server.connect((HOST, PORT))
-                    #connected = True
-                    #if connection_failed:
+            while not connected:
+                try:
+                    server.connect((HOST, PORT))
+                    connected = True
+                    if connection_failed:
                         # Connection was re-established after it recently failed
-                        #print('{} [INFO]: Re-established connection with server'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-                        #connection_failed = False
-                    # Connection re-established
-                #except socket.error:
-                    #connected = False
-                    #connection_failed = True
-                    #camera.release()
-                    #time.sleep(5) # Wait 5 seconds before trying to reconnect
-                    #print('{} [INFO]: Attempting to re-establish connection with server'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-                    #camera.open(0)
+                        print('{} [INFO]: Re-established connection with server'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+                        connection_failed = False
+                except socket.error:
+                    connected = False
+                    connection_failed = True
+                    camera.release()
+                    time.sleep(5) # Wait 5 seconds before trying to reconnect
+                    print('{} [INFO]: Attempting to re-establish connection with server'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+                    camera.open(0)
 
-        # TODO: change this (delete imshow, remove ord('q'), etc.)
-        #cv.imshow('frame', frame1)
+        #cv.imshow('frame', frame1) # TODO: delete
         frame1 = frame2
         ret, frame2 = camera.read()
-        #if cv.waitKey(1) == ord('q'):
-            #break
         cv.waitKey(1)
-
-    #cv.destroyAllWindows() # todo: remove
 
 if __name__ == '__main__':
     try:

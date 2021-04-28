@@ -5,6 +5,7 @@ misc.py
 simple.py
 app.py
 test.py
+skeleton.py
 
 stream_frames/
 output/
