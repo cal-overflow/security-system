@@ -38,13 +38,16 @@ def main():
     while camera.isOpened():
         detected_motion, motion_frame = helper.detectMotion(frame1, frame2, int(camera.get(3)), int(camera.get(4)))
         frame = helper.drawTime(motion_frame, int(camera.get(3)), int(camera.get(4)))
-        data = {'FRAME': frame,
-                'MOTION': detected_motion,
-                'FPS': FPS,
-                'WIDTH': int(camera.get(3)),
-                'HEIGHT': int(camera.get(4))
-                }
-        pickled_data = pickle.dumps(data)
+        # RESTORE
+        #data = {'FRAME': frame,
+                #'MOTION': detected_motion,
+                #'FPS': FPS,
+                #'WIDTH': int(camera.get(3)),
+                #'HEIGHT': int(camera.get(4))
+                #}
+        #pickled_data = pickle.dumps(data)
+
+        pickled_data = pickle.dumps(frame)
 
         # TODO:
         server.sendall(struct.pack("P", len(pickled_data))+pickled_data)

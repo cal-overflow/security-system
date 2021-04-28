@@ -59,16 +59,18 @@ def stream_camera(client, address):
 
         pickled_data = data[:msg_size]
         data = data[msg_size:]
-        data = pickle.loads(pickled_data)
+        # TODO: restore
+        #data = pickle.loads(pickled_data)
+        frame = pickle.loads(pickled_data)
 
         # Update frames
-        temp_frames = FRAMES[address[1]]
-        temp_frames.append(data)
-        if len(temp_frames) > data['FPS'] * SECONDS and not recording:
-            temp_frames.pop(0)
-        FRAMES[address[1]] = temp_frames
+        #temp_frames = FRAMES[address[1]]
+        #temp_frames.append(data)
+        #if len(temp_frames) > data['FPS'] * SECONDS and not recording:
+            #temp_frames.pop(0)
+        #FRAMES[address[1]] = temp_frames
 
-        processed_frame = FRAMES[address[1]][-1]['FRAME']
+        #processed_frame = FRAMES[address[1]][-1]['FRAME']
 
         # If there is motion in this frame or there was recently motion (and it is recording), then act accordingly
         #if data['MOTION'] or recording:
@@ -95,7 +97,9 @@ def stream_camera(client, address):
         #with open('stream_frames/{}.txt'.format(helper.getClientCount()), 'w') as file:
              #file.write(name)
 
-        cv.imshow('Client: {} ({})'.format(address[1], address[0]), processed_frame)
+        # TODO: RESTORE
+        cv.imshow('streamed video', frame)
+        #cv.imshow('Client: {} ({})'.format(address[1], address[0]), processed_frame)
         cv.waitKey(1)
 
 def main():
