@@ -7,7 +7,9 @@ import datetime
 import functions as helper
 
 #HOST = '192.168.0.8' # Server address
-HOST = '127.0.0.1'
+#HOST = '127.0.0.1'
+HOST = '0.0.0.0'
+#HOST = '192.168.0.34'
 PORT = 8000
 
 def main():
@@ -46,6 +48,7 @@ def main():
 
         try:
             server.sendall(struct.pack("L", len(pickled_data))+pickled_data)
+            #print('sent') # TODO: delete
 
         # Handle connection issues
         except socket.error:
@@ -71,16 +74,15 @@ def main():
                     print('{} [INFO]: Attempting to re-establish connection with server'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
                     camera.open(0)
 
-
-
         # TODO: change this (delete imshow, remove ord('q'), etc.)
-        cv.imshow('frame', frame1)
+        #cv.imshow('frame', frame1)
         frame1 = frame2
         ret, frame2 = camera.read()
-        if cv.waitKey(1) == ord('q'):
-            break
+        #if cv.waitKey(1) == ord('q'):
+            #break
+        cv.waitKey(1)
 
-    cv.destroyAllWindows() # todo: remove
+    #cv.destroyAllWindows() # todo: remove
 
 if __name__ == '__main__':
     try:

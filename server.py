@@ -6,8 +6,8 @@ import time
 from multiprocessing import Process as process
 import functions as helper
 
-#HOST = '0.0.0.0'
-HOST = '127.0.0.1'
+HOST = '0.0.0.0'
+#HOST = '127.0.0.1'
 PORT = 8000
 MAX_CLIENTS = 5
 SECONDS = 10
@@ -26,6 +26,7 @@ def stream_camera(client, address):
     package_size = struct.calcsize("P")
     recording = False
     while True:
+        #print(address, 'here')
         data, message_size, msg_size = b'', None, None
 
         # Recieve data stream from socket (client)
@@ -49,10 +50,13 @@ def stream_camera(client, address):
         message_size = data[:package_size]
         data = data[package_size:]
         msg_size = struct.unpack("P", message_size)[0]
+        print(msg_size) # TODO: DELETE
 
         while len(data) < msg_size:
             data += client.recv(4096)
 
+        if address[0] != '127.0.0.1': # TODO: delete
+            print('package received', address[1]) # TODO: delete
         pickled_data = data[:msg_size]
         data = data[msg_size:]
         data = pickle.loads(pickled_data)
@@ -82,20 +86,21 @@ def stream_camera(client, address):
         # Write the latest frame to a file called <client id><a/b>.jpg, which will then be used by flask server
         # Example: flask webserver reads 1b while 1a is being written to.
         # This is not the most efficient way of streaming, but it provides a smooth stream.
-        name = 'a' if alternator else 'b'
-        filename = 'stream_frames/{}{}.jpg'.format(helper.getClientCount(), name)
-        alternator = not alternator # alternate between two frames
-        cv.imwrite(filename, processed_frame)
+        #name = 'a' if alternator else 'b'
+        #filename = 'stream_frames/{}{}.jpg'.format(helper.getClientCount(), name)
+        #alternator = not alternator # alternate between two frames
+        #cv.imwrite(filename, processed_frame)
 
         # Save which image was most recently output (a or b)
-        with open('stream_frames/{}.txt'.format(helper.getClientCount()), 'w') as file:
-             file.write(name)
+        #with open('stream_frames/{}.txt'.format(helper.getClientCount()), 'w') as file:
+             #file.write(name)
 
         cv.imshow('Client: {} ({})'.format(address[1], address[0]), processed_frame)
         cv.waitKey(1)
 
 def main():
     print('socket server running')
+
     # Create Server (socket) and bind it to a address/port.
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind((HOST, PORT))
@@ -109,7 +114,7 @@ def main():
         helper.updateClientCount(helper.getClientCount() + 1)
 
         # Create, save, and start process (camera stream)
-        p = process(target=stream_camera, args=(client, address))
+        p = process(target=stream_camera, args=(client, address, ))
         PROCESSES.append(p)
         p.start()
 
@@ -117,8 +122,7 @@ def main():
     for p in PROCESSES:
         p.join() # Join all PROCESSES
 
-
-    socket.close()
+    socket.close() # TODO: see if this should be server.close() instead
 
 if __name__ == '__main__':
     try:
