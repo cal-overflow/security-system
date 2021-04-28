@@ -22,9 +22,9 @@ def stream_camera(client, address):
         return
 
     alternator = True
-    FRAMES[address[1]] = []
+    #FRAMES[address[1]] = [] # TODO: restore
     package_size = struct.calcsize("P")
-    recording = False
+    #recording = False #TODO: restore
     while True:
         #print(address, 'here')
         data, message_size, msg_size = b'', None, None
