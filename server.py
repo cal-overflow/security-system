@@ -6,8 +6,8 @@ import time
 from multiprocessing import Process as process
 import cameraFunctions as cf
 
-HOST = '0.0.0.0'
-#HOST = '127.0.0.1'
+#HOST = '0.0.0.0'
+HOST = '127.0.0.1'
 PORT = 8000
 MAX_CLIENTS = 5
 CLIENTS = 0
@@ -32,6 +32,7 @@ def stream_camera(client, address, CLIENTS):
 
         while len(data) < package_size:
             received = client.recv(4096)
+            print('first while loop')
 
             if not received:
                 # Close connection since nothing was received (client is not communicating)
@@ -39,7 +40,7 @@ def stream_camera(client, address, CLIENTS):
                 print('Socket {} disconnected'.format(address[1]))
                 # TODO: remove this (id) process (maybe)
                 # YES! I was correct. Must remove this process/id. I don't think this is working yet...
-                PROCESSES.pop(CLIENTS) #TODO need to figure this out (no longer pass id as param)
+                #PROCESSES.pop(CLIENTS) #TODO need to figure this out (no longer pass id as param)
                 FRAMES.pop(address[1], None)
                 print(CLIENTS)
                 CLIENTS -= 1
@@ -47,7 +48,7 @@ def stream_camera(client, address, CLIENTS):
                 # Cheap solution. #TODO: Fix this
                 with open('clients.txt', 'w') as file:
                     file.write(str(CLIENTS))
-                return
+                return # exit function
             else:
                 data += received
 
@@ -56,6 +57,8 @@ def stream_camera(client, address, CLIENTS):
         msg_size = struct.unpack("P", message_size)[0]
 
         while len(data) < msg_size:
+            print(len(data),'<',msg_size)
+            print('second while loop')
             data += client.recv(4096)
 
         pickled_data = data[:msg_size]
@@ -119,6 +122,10 @@ if __name__ == '__main__':
     # Clear PROCESSES
     for p in PROCESSES:
         p.join() # Join all PROCESSES
+
+
+    with open('clients.txt', 'w') as file:
+        file.write(str(0)) # Ensure that server knows no clients are connected when it restarts. (Connection will be re-established)
 
     # Close server connection
     cv.destroyAllWindows()

@@ -9,13 +9,15 @@
         <div class="col-lg-8  offset-lg-2">
             <h3 class="mt-5">Live Streaming</h3>
             <h5 class="mt-3">Cameras:
-              <span>{{count}}</span>
+              <span id="clients">{{clients}}</span>
             </h5>
-            {%for i in range(count)%}
-            <div class="container" id="container{{i}}">
-              <img class="stream" id="stream{{i}}" src="{{ url_for('video_feed', id=i) }}">
-            </div>
-            {% endfor %}
+            {% if clients > 0 %}
+              {% for i in range(0, clients) %}
+                <div class="container" id="container{{i + 1}}">
+                  <img class="stream" id="stream{{i + 1}}" src="{{ url_for('video_feed', id=i+1) }}">
+                </div>
+              {% endfor %}
+            {% endif %}
         </div>
     </div>
 </div>

@@ -8,13 +8,16 @@ app.config["CACHE_TYPE"] = "null" # TODO: delete
 
 @app.route('/')
 def index():
-    with open('clients.txt', 'r') as file:
-        count = int(file.read()) # number of clients/cameras
-    return render_template('index.html', count=count)
+    return render_template('index.html', clients=getClients())
 
 @app.route('/video_feed/<id>')
 def video_feed(id):
     return Response(getClientStream(id), mimetype='multipart/x-mixed-replace; boundary=frame')
+
+def getClients():
+    with open('clients.txt', 'r') as file:
+        count = int(file.read()) # number of clients/cameras
+    return count
 
 def getClientStream(id):
     '''Get a client stream given their id'''

@@ -15,10 +15,10 @@ server.connect((HOST, PORT))
 
 FPS = cf.getFPS()
 
-camera = cv.VideoCapture(0)
+camera = cv.VideoCapture(0, cv.CAP_DSHOW)
 if not camera.isOpened():
     # Attempt to open capture device once more, after a failure
-    camera.open()
+    camera.open(0, cv.CAP_DSHOW)
     if not camera.isOpened():
         print('Cannot open camera')
         exit()
@@ -41,7 +41,8 @@ while camera.isOpened():
         server.sendall(struct.pack("L", len(pickled_data))+pickled_data)
 
     # Handle connection issue
-    except:
+    except socket.error:
+        print('connection error :(')
         connected = False
         server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -56,10 +57,14 @@ while camera.isOpened():
                 time.sleep(5) # wait 5 seconds before trying to reconnect
                 camera.open()
 
+    cv.imshow('frame', frame1)
     frame1 = frame2
     ret, frame2 = camera.read()
-    cv.waitKey(1)
+    if cv.waitKey(1) == ord('q'):
+        break
 
+
+cv.destroyAllWindows()
 #helpful resources:
 #https://stackoverflow.com/questions/30988033/sending-live-video-frame-over-network-in-python-opencv#
 #https://stackoverflow.com/questions/53347759/importerror-libcblas-so-3-cannot-open-shared-object-file-no-such-file-or-dire
