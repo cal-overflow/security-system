@@ -22,20 +22,22 @@ def stream_camera(client, address):
         return
 
     alternator = True
-    #FRAMES[address[1]] = [] # TODO: restore
+    FRAMES[address[1]] = [] # This client has no previously saved frames (for recording)
     package_size = struct.calcsize("P")
-    data, message_size, msg_size = b'', None, None
-    #recording = False #TODO: restore
+    count = 0
+    encoded_data, message_size, msg_size = b'', None, None
+    recording = False #TODO: restore
     while True:
+        #print(count, encoded_data)
+        count += 1
         #print(address, 'here')
 
-
-        # Recieve data stream from socket (client)
-        while len(data) < package_size:
+        # Recieve encoded_data stream from socket (client)
+        while len(encoded_data) < package_size:
             received = client.recv(4096)
 
             if not received:
-                    # Close connection since nothing was received (client is not communicating)
+                # Close connection since nothing was received (client is not communicating)
                 client.close()
                 print('Socket {} disconnected'.format(address[1]))
                 # TODO: remove this (id) process (maybe)
@@ -46,31 +48,28 @@ def stream_camera(client, address):
                 print(helper.getClientCount())
                 return # exit function
             else:
-                data += received
+                encoded_data += received
 
-        message_size = data[:package_size]
-        data = data[package_size:]
+        message_size = encoded_data[:package_size]
+        encoded_data = encoded_data[package_size:]
         msg_size = struct.unpack("P", message_size)[0]
 
-        while len(data) < msg_size:
-            print(len(data),'<',msg_size) # TODO: delete
-            print('second loop: receiving data')  # TODO: delete
-            data += client.recv(4096)
+        while len(encoded_data) < msg_size:
+            encoded_data += client.recv(4096)
 
-        pickled_data = data[:msg_size]
-        data = data[msg_size:]
-        # TODO: restore
-        #data = pickle.loads(pickled_data)
-        frame = pickle.loads(pickled_data)
+        # Store and decode the encoded data
+        pickled_data = encoded_data[:msg_size]
+        encoded_data = encoded_data[msg_size:]
+        data = pickle.loads(pickled_data)
 
         # Update frames
-        #temp_frames = FRAMES[address[1]]
-        #temp_frames.append(data)
-        #if len(temp_frames) > data['FPS'] * SECONDS and not recording:
-            #temp_frames.pop(0)
-        #FRAMES[address[1]] = temp_frames
+        temp_frames = FRAMES[address[1]]
+        temp_frames.append(data)
+        if len(temp_frames) > data['FPS'] * SECONDS and not recording:
+            temp_frames.pop(0)
+        FRAMES[address[1]] = temp_frames
 
-        #processed_frame = FRAMES[address[1]][-1]['FRAME']
+        processed_frame = FRAMES[address[1]][-1]['FRAME']
 
         # If there is motion in this frame or there was recently motion (and it is recording), then act accordingly
         #if data['MOTION'] or recording:
@@ -88,18 +87,18 @@ def stream_camera(client, address):
         # Write the latest frame to a file called <client id><a/b>.jpg, which will then be used by flask server
         # Example: flask webserver reads 1b while 1a is being written to.
         # This is not the most efficient way of streaming, but it provides a smooth stream.
-        #name = 'a' if alternator else 'b'
-        #filename = 'stream_frames/{}{}.jpg'.format(helper.getClientCount(), name)
-        #alternator = not alternator # alternate between two frames
-        #cv.imwrite(filename, processed_frame)
+        name = 'a' if alternator else 'b'
+        filename = 'stream_frames/{}{}.jpg'.format(helper.getClientCount(), name)
+        alternator = not alternator # alternate between two frames
+        cv.imwrite(filename, processed_frame)
 
         # Save which image was most recently output (a or b)
-        #with open('stream_frames/{}.txt'.format(helper.getClientCount()), 'w') as file:
-             #file.write(name)
+        with open('stream_frames/{}.txt'.format(helper.getClientCount()), 'w') as file:
+             file.write(name)
 
         # TODO: RESTORE
-        cv.imshow('streamed video', frame)
-        #cv.imshow('Client: {} ({})'.format(address[1], address[0]), processed_frame)
+        #cv.imshow('streamed video', frame)
+        cv.imshow('Client: {} ({})'.format(address[1], address[0]), processed_frame)
         cv.waitKey(1)
 
 def main():

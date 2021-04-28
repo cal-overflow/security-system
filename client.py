@@ -50,7 +50,6 @@ def main():
         #server.sendall(struct.pack("P", len(pickled_data))+pickled_data) # TODO: delete
         try:
             server.sendall(struct.pack("P", len(pickled_data))+pickled_data)
-            print('sent') # TODO: delete
 
         # Handle connection issues
         except socket.error:
