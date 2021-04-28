@@ -39,12 +39,11 @@ def record(frames, already_recording, SECONDS):
 
 def getFPS():
     '''Get the true FPS (including processing) from the camera'''
-    print('Calibrating')
     camera = cv.VideoCapture(0)
 
     start_time = time.time()
     count = 0
-    while int(time.time() - start_time) < 1: #TODO change back to 10
+    while int(time.time() - start_time) < 1: # TODO: change back to 10
         ret, frame = camera.read()
         count += 1 # number of frames
 
@@ -85,3 +84,16 @@ def drawRecording(frame, WIDTH, HEIGHT):
     text = 'RECORDING' if (int(time.time()) % 2 == 0) else ''
     cv.putText(frame, text, (WIDTH - 140, 16), cv.FONT_HERSHEY_PLAIN, 1, (0, 0, 224), 2, cv.FILLED, False)
     return frame
+
+def getClientCount():
+    '''Return the current number of clients'''
+    with open('clients.txt', 'r') as file:
+        count = int(file.read())
+    #print('Client count:', count) # TODO: delete
+    return count
+
+def updateClientCount(i):
+    '''Update number of clients'''
+    with open('clients.txt', 'w') as file:
+        file.write(str(i))
+    #print('Client count:', i) # TODO: delete

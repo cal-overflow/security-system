@@ -4,6 +4,7 @@ __pycache__
 misc.py
 simple.py
 app.py
+test.py
 
 stream_frames/
 output/
