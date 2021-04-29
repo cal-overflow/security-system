@@ -34,14 +34,18 @@ def getClientStream(id):
                     #possibly unnecessary encoding # TODO: see if this is necessary. might be able to just use cv.imread
                     # Not sure if this if statement helps at all. (Initially this helped with the imencode -> '!image empty error')
                     # TODO: re-visit this error
-                    if type(img) != None:
+                    #if type(img) != None:
+                    try:
                         ret, buffer = cv.imencode('.jpg', img)
-                        if ret:
-                            message = buffer.tobytes()
+                    except Exception as e:
+                        print(e)
 
-                            yield(b'--frame\r\n'
-                                    b'Content-Type: image/jpeg\r\n\r\n' + message + b'\r\n')
+                    if ret:
+                        message = buffer.tobytes()
 
+                    yield(b'--frame\r\n'
+                                b'Content-Type: image/jpeg\r\n\r\n' + message + b'\r\n')
+                    
 if __name__ == '__main__':
     # TODO: disable DEBUG mode
     app.run(debug=True)

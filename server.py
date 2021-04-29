@@ -11,45 +11,49 @@ HOST = '0.0.0.0'
 PORT = 8000
 MAX_CLIENTS = 5
 SECONDS = 10
+CLIENTS = []
 PROCESSES = []
 FRAMES = {}
 
-def stream_camera(client, address):
+
+def stream_camera(client, address, id):
     '''Stream video from a client'''
 
-    #TODO: fix this
-    if helper.getClientCount() >= 5:
+    # Do not stream this camera if there are more than 5 devices connected
+    if helper.getClientCount() > 5:
         return
+
 
     alternator = True
     FRAMES[address[1]] = [] # This client has no previously saved frames (for recording)
     package_size = struct.calcsize("P")
-    count = 0
     encoded_data, message_size, msg_size = b'', None, None
-    recording = False #TODO: restore
+    recording = False # Not recoridng when stream begins
+
+    # Continuous streaming
     while True:
-        #print(count, encoded_data)
-        count += 1
-        #print(address, 'here')
+        # Change this camera's id when any preceding cameras disconnect (ie., when camera 3 disconnects, camera 4 takes its place as camera 3)
+        if id > helper.getClientCount():
+            id -= 1
 
         # Recieve encoded_data stream from socket (client)
         while len(encoded_data) < package_size:
             received = client.recv(4096)
 
             if not received:
-                # Close connection since nothing was received (client is not communicating)
+                # Close connection since nothing was received (client is no longer communicating)
                 client.close()
                 print('Socket {} disconnected'.format(address[1]))
-                # TODO: remove this (id) process (maybe)
-                # YES! I was correct. Must remove this process/id. I don't think this is working yet...
-                #PROCESSES.pop(CLIENTS) #TODO need to figure this out (no longer pass id as param)
+                #PROCESSES.pop(id - 1) # camera 3 is index 2 (3rd process) # TODO: see if this works
                 FRAMES.pop(address[1], None)
                 helper.updateClientCount(helper.getClientCount() - 1)
                 print(helper.getClientCount())
-                return # exit function
+                return # exit stream_camera function
+
             else:
                 encoded_data += received
 
+        # Determine the size of the incoming message and receive it
         message_size = encoded_data[:package_size]
         encoded_data = encoded_data[package_size:]
         msg_size = struct.unpack("P", message_size)[0]
@@ -62,7 +66,7 @@ def stream_camera(client, address):
         encoded_data = encoded_data[msg_size:]
         data = pickle.loads(pickled_data)
 
-        # Update frames
+        # Update frames (for recording)
         temp_frames = FRAMES[address[1]]
         temp_frames.append(data)
         if len(temp_frames) > data['FPS'] * SECONDS and not recording:
@@ -71,9 +75,10 @@ def stream_camera(client, address):
 
         processed_frame = FRAMES[address[1]][-1]['FRAME']
 
+        # Handle recording behavior
         # If there is motion in this frame or there was recently motion (and it is recording), then act accordingly
         #if data['MOTION'] or recording:
-            #recording, output_file = helper.record(FRAMES[address[1]], recording, SECONDS)
+            #recording, output_file = helper.record(FRAMES[address[1]], recording, SECONDS, id)
             #processed_frame = helper.drawRecording(FRAMES[address[1]][-1]['FRAME'], FRAMES[address[1]][-1]['WIDTH'], FRAMES[address[1]][-1]['HEIGHT'])
 
             #if not recording:
@@ -84,12 +89,12 @@ def stream_camera(client, address):
                 #print('Video saved to', output_file)
 
 
-        # Write the latest frame to a file called <client id><a/b>.jpg, which will then be used by flask server
+        # Write the latest frame to a file called <camera id><a/b>.jpg, which will then be used by flask server
         # Example: flask webserver reads 1b while 1a is being written to.
-        # This is not the most efficient way of streaming, but it provides a smooth stream.
+        # This is probably NOT the most efficient way of streaming, but it provides a fairly smooth stream.
         name = 'a' if alternator else 'b'
-        filename = 'stream_frames/{}{}.jpg'.format(helper.getClientCount(), name)
-        alternator = not alternator # alternate between two frames
+        filename = 'stream_frames/{}{}.jpg'.format(id, name)
+        alternator = not alternator # alternate (writing to) frames
         cv.imwrite(filename, processed_frame)
 
         # Save which image was most recently output (a or b)
@@ -98,7 +103,8 @@ def stream_camera(client, address):
 
         # TODO: RESTORE
         #cv.imshow('streamed video', frame)
-        cv.imshow('Client: {} ({})'.format(address[1], address[0]), processed_frame)
+        cv.imshow('Client: {} ({})'.format(id, address[0]), processed_frame)
+        print('frame received from Client {}'.format(id))
         cv.waitKey(1)
 
 def main():
@@ -117,7 +123,7 @@ def main():
         helper.updateClientCount(helper.getClientCount() + 1)
 
         # Create, save, and start process (camera stream)
-        p = process(target=stream_camera, args=(client, address, ))
+        p = process(target=stream_camera, args=(client, address, helper.getClientCount(), ))
         PROCESSES.append(p)
         p.start()
 

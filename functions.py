@@ -5,7 +5,7 @@ import time
 THRESHOLD = 10000
 
 # data for each frame = {'img': image, 'motion': boolean, 'FPS': fps, 'WIDTH': width, 'HEIGHT': height}
-def record(frames, already_recording, SECONDS):
+def record(frames, already_recording, SECONDS, id):
     '''Record video when motion is detected. Includes the few seconds prior to motion detection and few seconds after the motion stops.'''
     FPS = frames[0]['FPS']
     WIDTH = frames[0]['WIDTH']
@@ -25,7 +25,7 @@ def record(frames, already_recording, SECONDS):
 
         fourcc = cv.VideoWriter_fourcc(*'XVID')
         #TODO: need to change name of output file (probably to the date/time)
-        output_file = 'output/{}.avi'.format(datetime.datetime.now().strftime("%m-%d%Y-%H:%M:%S"))
+        output_file = 'output/{}CAM{}.avi'.format(datetime.datetime.now().strftime("%m-%d%Y-%H:%M:%S"), id)
         output = cv.VideoWriter(output_file, fourcc, FPS, (WIDTH, HEIGHT), True)
 
         for frame in frames:
