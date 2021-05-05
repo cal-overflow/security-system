@@ -1,7 +1,9 @@
 import cv2 as cv
+import smtplib
 import datetime
 import time
 
+# Movement detection threshold
 THRESHOLD = 10000
 
 # data for each frame = {'img': image, 'motion': boolean, 'FPS': fps, 'WIDTH': width, 'HEIGHT': height}
@@ -25,7 +27,7 @@ def record(frames, already_recording, SECONDS, id):
 
         fourcc = cv.VideoWriter_fourcc(*'XVID')
         #TODO: need to change name of output file (probably to the date/time)
-        output_file = 'output/{}CAM{}.avi'.format(datetime.datetime.now().strftime("%m-%d%Y-%H:%M:%S"), id)
+        output_file = 'data/recordings/{}CAM{}.avi'.format(datetime.datetime.now().strftime("%m-%d%Y-%H:%M:%S"), id)
         output = cv.VideoWriter(output_file, fourcc, FPS, (WIDTH, HEIGHT), True)
 
         for frame in frames:
@@ -36,6 +38,35 @@ def record(frames, already_recording, SECONDS, id):
         output.release() # Completed writing to output file
 
     return movement_lately, output_file
+
+def alert(id):
+    '''Notify (via email) that motion has been detected.'''
+    gmail_user = ''
+    gmail_password = ''
+
+    sent_from = gmail_user
+    to = [] # Email recipients
+    subject = 'ALERT - Security System'
+    body = 'ALERT: Movement has been detected by the security system on {}'.format(datetime.datetime.now().strftime("%d/%m/%Y at %H:%M:%S"))
+
+    email_text = """\
+    From: %s
+    To: %s
+    Subject: %s
+
+    %s
+    """ % (sent_from, ", ".join(to), subject, body)
+
+    try:
+        server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
+        server.ehlo()
+        server.login(gmail_user, gmail_password)
+        server.sendmail(sent_from, to, email_text)
+        server.close()
+
+        print('Movement detected. Alerts successfully sent.')
+    except:
+        print('There was an issue sending alerts.')
 
 def getFPS():
     '''Get the true FPS (including processing) from the camera'''
@@ -87,13 +118,32 @@ def drawRecording(frame, WIDTH, HEIGHT):
 
 def getClientCount():
     '''Return the current number of clients'''
-    with open('clients.txt', 'r') as file:
+    with open('data/clients.txt', 'r') as file:
         count = int(file.read())
     #print('Client count:', count) # TODO: delete
     return count
 
 def updateClientCount(i):
     '''Update number of clients'''
-    with open('clients.txt', 'w') as file:
+    with open('data/clients.txt', 'w') as file:
         file.write(str(i))
     #print('Client count:', i) # TODO: delete
+
+def getStatus():
+    '''Get the alarm status'''
+    with open('data/alarm_status.txt', 'r') as file:
+        status = file.read()
+    return status.strip('\n')
+
+def toggleStatus(init=None):
+    '''Toggle the status of the alarm (on or off)'''
+    if init:
+        new = init
+    else:
+        old = getStatus()
+        new = 'on' if (old == 'off') else 'off'
+
+    with open('data/alarm_status.txt', 'w') as file:
+        file.write(new)
+
+    return new

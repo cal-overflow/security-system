@@ -85,11 +85,3 @@ if __name__ == '__main__':
     except Exception as e:
         cv.destroyAllWindows() # TODO: delete
         print('{}[INFO]: Exiting Script because of error. Cause: {}'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), e))
-
-#helpful resources:
-#https://stackoverflow.com/questions/30988033/sending-live-video-frame-over-network-in-python-opencv#
-#https://stackoverflow.com/questions/53347759/importerror-libcblas-so-3-cannot-open-shared-object-file-no-such-file-or-dire
-#https://stackoverflow.com/questions/54665842/when-importing-tensorflow-i-get-the-following-error-no-module-named-numpy-cor
-#https://stackoverflow.com/questions/34051737/numpy-core-multiarray-failed-to-import
-#https://stackoverflow.com/questions/10810249/python-socket-multiple-clients
-#https://instructobit.com/tutorial/101/Reconnect-a-Python-socket-after-it-has-lost-its-connection

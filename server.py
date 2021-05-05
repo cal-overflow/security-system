@@ -77,7 +77,11 @@ def stream_camera(client, address, id):
 
         # Handle recording behavior
         # If there is motion in this frame or there was recently motion (and it is recording), then act accordingly
-        #if data['MOTION'] or recording:
+        if data['MOTION'] or recording:
+            if (helper.getStatus() == 'on') and not recording:
+                # Alert status is 'on' and recording just began. Send ALERT
+                helper.alert(id)
+                recording = True # TODO: DELETE
             #recording, output_file = helper.record(FRAMES[address[1]], recording, SECONDS, id)
             #processed_frame = helper.drawRecording(FRAMES[address[1]][-1]['FRAME'], FRAMES[address[1]][-1]['WIDTH'], FRAMES[address[1]][-1]['HEIGHT'])
 
@@ -93,18 +97,18 @@ def stream_camera(client, address, id):
         # Example: flask webserver reads 1b while 1a is being written to.
         # This is probably NOT the most efficient way of streaming, but it provides a fairly smooth stream.
         name = 'a' if alternator else 'b'
-        filename = 'stream_frames/{}{}.jpg'.format(id, name)
+        filename = 'data/stream_frames/{}{}.jpg'.format(id, name)
         alternator = not alternator # alternate (writing to) frames
         cv.imwrite(filename, processed_frame)
 
         # Save which image was most recently output (a or b)
-        with open('stream_frames/{}.txt'.format(helper.getClientCount()), 'w') as file:
+        with open('data/stream_frames/{}.txt'.format(helper.getClientCount()), 'w') as file:
              file.write(name)
 
         # TODO: RESTORE
         #cv.imshow('streamed video', frame)
         cv.imshow('Client: {} ({})'.format(id, address[0]), processed_frame)
-        print('frame received from Client {}'.format(id))
+        #print('frame received from Client {}'.format(id))
         cv.waitKey(1)
 
 def main():
@@ -137,6 +141,7 @@ if __name__ == '__main__':
     try:
         main()
     except:
+        helper.toggleStatus('on') # Set alert status to 'on' by default
         helper.updateClientCount(0) # Ensure that server knows no clients are connected when it restarts. (Connection will be re-established)
 
         # TODO: move this back to main if necessary, and remove when done developing

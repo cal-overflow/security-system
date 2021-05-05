@@ -6,7 +6,8 @@ simple.py
 app.py
 test.py
 skeleton.py
+testEmail.py
 
-stream_frames/
-output/
-clients.txt
+# Misc
+data/
+credentials.txt

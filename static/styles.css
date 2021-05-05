@@ -9,3 +9,6 @@
   width: 60%;
   margin: 0 auto;
 }
+
+.on { color: green; }
+.off  { color: red; }
