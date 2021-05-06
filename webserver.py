@@ -54,4 +54,4 @@ def getClientStream(id):
 
 if __name__ == '__main__':
     # TODO: disable DEBUG mode
-    app.run(debug=True)
+    app.run(port=80, debug=True)

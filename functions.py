@@ -44,7 +44,7 @@ def alert(id):
     return # TODO: DELETE THIS
     '''Notify (via email) that motion has been detected.'''
     gmail_user = 'cl.s.system.notifications@gmail.com'
-    gmail_password = 'oS5Ig7E&Vd3sBj1G'
+    gmail_password = ''
 
     sent_from = gmail_user
     to = ['cl.s.system.notifications@gmail.com', 'lislechristian@gmail.com'] # Email recipients here
