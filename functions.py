@@ -43,11 +43,11 @@ def record(frames, already_recording, SECONDS, id):
 def alert(id):
     return # TODO: DELETE THIS
     '''Notify (via email) that motion has been detected.'''
-    gmail_user = ''
-    gmail_password = ''
+    gmail_user = 'cl.s.system.notifications@gmail.com'
+    gmail_password = 'oS5Ig7E&Vd3sBj1G'
 
     sent_from = gmail_user
-    to = [] # Email recipients here
+    to = ['cl.s.system.notifications@gmail.com', 'lislechristian@gmail.com'] # Email recipients here
     subject = 'ALERT - Security System'
     body = 'ALERT: Movement has been detected by the security system on {} by camera {}'.format(datetime.datetime.now().strftime("%d/%m/%Y at %H:%M:%S"), id)
 
