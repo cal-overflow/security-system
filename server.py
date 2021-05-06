@@ -3,6 +3,7 @@ import socket
 import pickle
 import struct
 import time
+import datetime
 from multiprocessing import Process as process
 import functions as helper
 
@@ -43,11 +44,10 @@ def stream_camera(client, address, id):
             if not received:
                 # Close connection since nothing was received (client is no longer communicating)
                 client.close()
-                print('Socket {} disconnected'.format(address[1]))
+                print('{} [INFO]: Socket {} disconnected'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), address[1]))
                 #PROCESSES.pop(id - 1) # camera 3 is index 2 (3rd process) # TODO: see if this works
                 FRAMES.pop(address[1], None)
                 helper.updateClientCount(helper.getClientCount() - 1)
-                print(helper.getClientCount())
                 return # exit stream_camera function
 
             else:
@@ -77,20 +77,21 @@ def stream_camera(client, address, id):
 
         # Handle recording behavior
         # If there is motion in this frame or there was recently motion (and it is recording), then act accordingly
-        if data['MOTION'] or recording:
+        # Ignore if this is the first frame sent from client
+        if (data['MOTION'] and len(FRAMES[address[1]]) != 1) or recording:
             if (helper.getStatus() == 'on') and not recording:
                 # Alert status is 'on' and recording just began. Send ALERT
                 helper.alert(id)
                 recording = True # TODO: DELETE
-            #recording, output_file = helper.record(FRAMES[address[1]], recording, SECONDS, id)
-            #processed_frame = helper.drawRecording(FRAMES[address[1]][-1]['FRAME'], FRAMES[address[1]][-1]['WIDTH'], FRAMES[address[1]][-1]['HEIGHT'])
+            recording, output_file = helper.record(FRAMES[address[1]], recording, SECONDS, id)
+            processed_frame = helper.drawRecording(FRAMES[address[1]][-1]['FRAME'], FRAMES[address[1]][-1]['WIDTH'], FRAMES[address[1]][-1]['HEIGHT'])
 
-            #if not recording:
+            if not recording:
                 # No longer recording. Throw away all but last few FRAMES
-                #temp_frames = FRAMES[address[1]]
-                #temp_frames = temp_frames[(len(temp_frames) - (data['FPS'] * SECONDS)):]
-                #FRAMES[address[1]] = temp_frames
-                #print('Video saved to', output_file)
+                temp_frames = FRAMES[address[1]]
+                temp_frames = temp_frames[(len(temp_frames) - (data['FPS'] * SECONDS)):]
+                FRAMES[address[1]] = temp_frames
+                print('{} [INFO]: Video recording saved to {}'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), output_file))
 
 
         # Write the latest frame to a file called <camera id><a/b>.jpg, which will then be used by flask server
@@ -105,26 +106,24 @@ def stream_camera(client, address, id):
         with open('data/stream_frames/{}.txt'.format(helper.getClientCount()), 'w') as file:
              file.write(name)
 
-        # TODO: RESTORE
-        #cv.imshow('streamed video', frame)
-        cv.imshow('Client: {} ({})'.format(id, address[0]), processed_frame)
-        #print('frame received from Client {}'.format(id))
+        cv.imshow('Client: {} ({})'.format(id, address[0]), processed_frame) # TODO: delete this. dev purposes only
+
         cv.waitKey(1)
 
 def main():
-    print('socket server running')
+    print('{} [INFO]: Server running'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
 
     # Create Server (socket) and bind it to a address/port.
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind((HOST, PORT))
     server.listen(MAX_CLIENTS)
-    print('Listening for sockets')
+    print('{} [INFO]: Listening for (client) sockets'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
 
     while True:
         # Accept connection
         client, address = server.accept()
-        print('Socket Connection:', address) # TODO: delete
         helper.updateClientCount(helper.getClientCount() + 1)
+        print('{} [INFO]: Socket {} connected as client {}'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), address, helper.getClientCount()))
 
         # Create, save, and start process (camera stream)
         p = process(target=stream_camera, args=(client, address, helper.getClientCount(), ))
@@ -138,12 +137,19 @@ def main():
     socket.close() # TODO: see if this should be server.close() instead
 
 if __name__ == '__main__':
-    try:
-        main()
-    except:
-        helper.toggleStatus('on') # Set alert status to 'on' by default
-        helper.updateClientCount(0) # Ensure that server knows no clients are connected when it restarts. (Connection will be re-established)
+    # TODO: determine if I want this in a while loop or not
+    while True:
+        try:
+            main()
+        except Exception as e:
+            #TODO: change toggleStatus to 'on' for default!!!
+            helper.toggleStatus('off') # Set alert status to 'on' by default
+            helper.updateClientCount(0) # Ensure that server knows no clients are connected when it restarts. (Connection will be re-established)
 
-        # TODO: move this back to main if necessary, and remove when done developing
-        # Close server connection
-        cv.destroyAllWindows()
+            print('{} [INFO]: Server crashed'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+            time.sleep(5)
+            print('{} [INFO]: Restarting server'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+
+            # TODO: move this back to main if necessary, and remove when done developing (won't have cv windows)
+            # Close server connection
+            cv.destroyAllWindows()

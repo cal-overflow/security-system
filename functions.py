@@ -19,35 +19,37 @@ def record(frames, already_recording, SECONDS, id):
         motion.append(frame['MOTION'])
 
     # Check if there has been motion in the last few seconds
-    movement_lately = True in motion[len(motion) - (FPS * SECONDS * 2):]
+    start = len(motion) - (FPS * SECONDS)
+    # If the start index is less than 0, then default to True.
+    movement_lately = True if (start < 0 or (True in motion[start:])) else False
     output_file = None
 
     if not movement_lately:
         #stop the recording. Write to a video file
+        print('writing recording to file')
 
         fourcc = cv.VideoWriter_fourcc(*'XVID')
-        #TODO: need to change name of output file (probably to the date/time)
-        output_file = 'data/recordings/{}CAM{}.avi'.format(datetime.datetime.now().strftime("%m-%d%Y-%H:%M:%S"), id)
+        output_file = 'data/recordings/{}_CAM{}.avi'.format(datetime.datetime.now().strftime("%m-%d-%Y-%H:%M:%S"), id)
         output = cv.VideoWriter(output_file, fourcc, FPS, (WIDTH, HEIGHT), True)
 
         for frame in frames:
             # Write each frame to the output file.
             output.write(drawRecording(frame['FRAME'], WIDTH, HEIGHT))
-            cv.waitKey(1000 // FPS)
 
         output.release() # Completed writing to output file
 
     return movement_lately, output_file
 
 def alert(id):
+    return # TODO: DELETE THIS
     '''Notify (via email) that motion has been detected.'''
     gmail_user = ''
     gmail_password = ''
 
     sent_from = gmail_user
-    to = [] # Email recipients
+    to = [] # Email recipients here
     subject = 'ALERT - Security System'
-    body = 'ALERT: Movement has been detected by the security system on {}'.format(datetime.datetime.now().strftime("%d/%m/%Y at %H:%M:%S"))
+    body = 'ALERT: Movement has been detected by the security system on {} by camera {}'.format(datetime.datetime.now().strftime("%d/%m/%Y at %H:%M:%S"), id)
 
     email_text = """\
     From: %s
@@ -74,7 +76,7 @@ def getFPS():
 
     start_time = time.time()
     count = 0
-    while int(time.time() - start_time) < 1: # TODO: change back to 10
+    while int(time.time() - start_time) < 10:
         ret, frame = camera.read()
         count += 1 # number of frames
 
@@ -127,7 +129,6 @@ def updateClientCount(i):
     '''Update number of clients'''
     with open('data/clients.txt', 'w') as file:
         file.write(str(i))
-    #print('Client count:', i) # TODO: delete
 
 def getStatus():
     '''Get the alarm status'''
