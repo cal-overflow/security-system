@@ -106,9 +106,9 @@ def stream_camera(client, address, id):
         with open('data/stream_frames/{}.txt'.format(helper.getClientCount()), 'w') as file:
              file.write(name)
 
-        cv.imshow('Client: {} ({})'.format(id, address[0]), processed_frame) # TODO: delete this. dev purposes only
+        #cv.imshow('Client: {} ({})'.format(id, address[0]), processed_frame) # TODO: delete this. dev purposes only
 
-        cv.waitKey(1)
+        cv.waitKey(100)
 
 def main():
     print('{} [INFO]: Server running'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
@@ -151,4 +151,4 @@ if __name__ == '__main__':
 
             # TODO: move this back to main if necessary, and remove when done developing (won't have cv windows)
             # Close server connection
-            cv.destroyAllWindows()
+            #cv.destroyAllWindows()

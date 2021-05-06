@@ -8,8 +8,8 @@ import functions as helper
 
 #HOST = '192.168.0.8' # Server address
 #HOST = '127.0.0.1'
-HOST = '0.0.0.0'
-#HOST = '192.168.0.34'
+#HOST = '0.0.0.0'
+HOST = '192.168.0.43'
 PORT = 8080
 
 def main():
