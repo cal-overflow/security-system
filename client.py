@@ -10,7 +10,7 @@ import functions as helper
 #HOST = '127.0.0.1'
 HOST = '0.0.0.0'
 #HOST = '192.168.0.34'
-PORT = 8000
+PORT = 8080
 
 def main():
     '''Client that connects and streams video to server.'''

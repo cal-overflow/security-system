@@ -3,6 +3,7 @@ __pycache__
 # Files used for miscellaneous scripting development
 misc.py
 simple.py
+interactive.py
 app.py
 test.py
 skeleton.py

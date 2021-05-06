@@ -9,7 +9,7 @@ import functions as helper
 
 HOST = '0.0.0.0'
 #HOST = '127.0.0.1'
-PORT = 8000
+PORT = 8080
 MAX_CLIENTS = 5
 SECONDS = 10
 CLIENTS = []
@@ -44,7 +44,7 @@ def stream_camera(client, address, id):
             if not received:
                 # Close connection since nothing was received (client is no longer communicating)
                 client.close()
-                print('{} [INFO]: Socket {} disconnected'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), address[1]))
+                print('{} [INFO]: Socket {} (client {}) disconnected'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), address[1], id))
                 #PROCESSES.pop(id - 1) # camera 3 is index 2 (3rd process) # TODO: see if this works
                 FRAMES.pop(address[1], None)
                 helper.updateClientCount(helper.getClientCount() - 1)
@@ -141,9 +141,8 @@ if __name__ == '__main__':
     while True:
         try:
             main()
-        except Exception as e:
-            #TODO: change toggleStatus to 'on' for default!!!
-            helper.toggleStatus('off') # Set alert status to 'on' by default
+        except:
+            helper.toggleStatus('on') # Set alert status to 'on' by default
             helper.updateClientCount(0) # Ensure that server knows no clients are connected when it restarts. (Connection will be re-established)
 
             print('{} [INFO]: Server crashed'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
