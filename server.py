@@ -103,12 +103,12 @@ def stream_camera(client, address, id):
         letter = helper.ALPHA[alpha_index]
 
         # Save which alpha index was most recently output (a, b, c, ...)
-        with open('data/stream_frames/{}.txt'.format(helper.getClientCount()), 'w') as file:
+        with open('data/stream_frames/{}/frame.txt'.format(helper.getClientCount()), 'w') as file:
              file.write(helper.ALPHA[alpha_index - 1]) # Write down previous frame (that will have been completed)
 
         alpha_index = alpha_index + 1 if (alpha_index + 1 < len(helper.ALPHA)) else 0
 
-        filename = 'data/stream_frames/{}{}.jpg'.format(id, letter)
+        filename = 'data/stream_frames/{}/{}.jpg'.format(id, letter)
         cv.imwrite(filename, processed_frame)
 
         #cv.imshow('Client: {} ({})'.format(id, address[0]), processed_frame) # TODO: delete this. dev purposes only

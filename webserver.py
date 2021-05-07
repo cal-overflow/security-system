@@ -23,7 +23,7 @@ def video_feed(id):
 def getClientStream(id):
     '''Get a client stream given their id'''
     while True:
-        with open('data/stream_frames/{}.txt'.format(id), 'r') as file:
+        with open('data/stream_frames/{}/frame.txt'.format(id), 'r') as file:
             letter = file.read()
 
         if letter:
@@ -31,7 +31,7 @@ def getClientStream(id):
                 #filename = 'data/stream_frames/{}{}.jpg'.format(id, helper.ALPHA[0])
             #else:
                 #filename = 'data/stream_frames/{}{}.jpg'.format(id, helper.ALPHA[alpha_index + 1])
-            filename = 'data/stream_frames/{}{}.jpg'.format(id, letter)
+            filename = 'data/stream_frames/{}/{}.jpg'.format(id, letter)
 
             # TODO: see if this does anything. I don't think this works as it should
             with open(filename, 'rb') as f:

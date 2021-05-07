@@ -5,7 +5,7 @@ import time
 
 # CONSTANTS
 THRESHOLD = 10000 # Movement detection threshold
-ALPHA = ['a', 'b', 'c', 'd'] # Used
+ALPHA = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o'] # Used
 
 # data for each frame = {'img': image, 'motion': boolean, 'FPS': fps, 'WIDTH': width, 'HEIGHT': height}
 def record(frames, already_recording, SECONDS, id):
