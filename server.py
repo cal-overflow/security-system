@@ -73,7 +73,10 @@ def stream_camera(client, address, id):
             temp_frames.pop(0)
         FRAMES[address[1]] = temp_frames
 
-        processed_frame = FRAMES[address[1]][-1]['FRAME']
+        if len(FRAMES[address[1]]) < data['FPS'] * SECONDS:
+            processed_frame = FRAMES[address[1]][0]['FRAME']
+        else:
+            processed_frame = FRAMES[address[1]][(len(FRAMES[address[1]]) - (data['FPS'] * SECONDS)]['FRAME']
 
         # Handle recording behavior
         # If there is motion in this frame or there was recently motion (and it is recording), then act accordingly
@@ -100,6 +103,9 @@ def stream_camera(client, address, id):
         name = 'a' if alternator else 'b'
         filename = 'data/stream_frames/{}{}.jpg'.format(id, name)
         alternator = not alternator # alternate (writing to) frames
+        #if not recording:
+            #cv.imwrite(filename, frames[address[1]][0])
+        #else:
         cv.imwrite(filename, processed_frame)
 
         # Save which image was most recently output (a or b)
