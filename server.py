@@ -10,7 +10,7 @@ import functions as helper
 HOST = '0.0.0.0'
 #HOST = '127.0.0.1'
 PORT = 8080
-MAX_CLIENTS = 5
+MAX_CLIENTS = 3
 SECONDS = 10
 CLIENTS = []
 PROCESSES = []
@@ -20,7 +20,7 @@ def stream_camera(client, address, id):
     '''Stream video from a client'''
 
     # Do not stream this camera if there are more than 5 devices connected
-    if helper.getClientCount() > 5:
+    if helper.getClientCount() > MAX_CLIENTS:
         return
 
     alpha_index = 0 # Index of which frame is being written (a, b, c, ...). Important for webserver displaying full images
@@ -104,7 +104,7 @@ def stream_camera(client, address, id):
 
         # Save which alpha index was most recently output (a, b, c, ...)
         with open('data/stream_frames/{}/frame.txt'.format(helper.getClientCount()), 'w') as file:
-             file.write(helper.ALPHA[alpha_index - 1]) # Write down previous frame (that will have been completed)
+             file.write(helper.ALPHA[alpha_index - 2]) # Write down a previous frame (that will have been completed)
 
         alpha_index = alpha_index + 1 if (alpha_index + 1 < len(helper.ALPHA)) else 0
 
