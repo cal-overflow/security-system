@@ -3,8 +3,9 @@ import smtplib
 import datetime
 import time
 
-# Movement detection threshold
-THRESHOLD = 10000
+# CONSTANTS
+THRESHOLD = 10000 # Movement detection threshold
+ALPHA = ['a', 'b', 'c', 'd'] # Used
 
 # data for each frame = {'img': image, 'motion': boolean, 'FPS': fps, 'WIDTH': width, 'HEIGHT': height}
 def record(frames, already_recording, SECONDS, id):

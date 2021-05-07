@@ -24,11 +24,16 @@ def getClientStream(id):
     '''Get a client stream given their id'''
     while True:
         with open('data/stream_frames/{}.txt'.format(id), 'r') as file:
-            name = file.read()
-        if name: # Only update when file is not empty  (not being written to)
-            filename = 'data/stream_frames/{}{}.jpg'.format(id, name)
-            #print('reading file:', filename) # TODO: delete
+            letter = file.read()
 
+        if letter:
+            #if alpha_index + 1 == len(helper.ALPHA): # Only update when file is not empty  (not being written to)
+                #filename = 'data/stream_frames/{}{}.jpg'.format(id, helper.ALPHA[0])
+            #else:
+                #filename = 'data/stream_frames/{}{}.jpg'.format(id, helper.ALPHA[alpha_index + 1])
+            filename = 'data/stream_frames/{}{}.jpg'.format(id, letter)
+
+            # TODO: see if this does anything. I don't think this works as it should
             with open(filename, 'rb') as f:
                 img_complete = f.read()[-2:] == b'\xff\xd9' # True if jpeg if complete, false otherwise
 

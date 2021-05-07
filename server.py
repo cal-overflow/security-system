@@ -16,7 +16,6 @@ CLIENTS = []
 PROCESSES = []
 FRAMES = {}
 
-
 def stream_camera(client, address, id):
     '''Stream video from a client'''
 
@@ -24,8 +23,7 @@ def stream_camera(client, address, id):
     if helper.getClientCount() > 5:
         return
 
-
-    alternator = True
+    alpha_index = 0 # Index of which frame is being written (a, b, c, ...). Important for webserver displaying full images
     FRAMES[address[1]] = [] # This client has no previously saved frames (for recording)
     package_size = struct.calcsize("P")
     encoded_data, message_size, msg_size = b'', None, None
@@ -73,10 +71,12 @@ def stream_camera(client, address, id):
             temp_frames.pop(0)
         FRAMES[address[1]] = temp_frames
 
-        if len(FRAMES[address[1]]) < data['FPS'] * SECONDS:
-            processed_frame = FRAMES[address[1]][0]['FRAME']
-        else:
-            processed_frame = FRAMES[address[1]][(len(FRAMES[address[1]]) - (data['FPS'] * SECONDS)]['FRAME']
+        # Process the frame from 10 seconds ago
+        #if len(FRAMES[address[1]]) < data['FPS'] * SECONDS:
+            #processed_frame = FRAMES[address[1]][0]['FRAME']
+        #else:
+            #processed_frame = FRAMES[address[1]][(len(FRAMES[address[1]]) - (data['FPS'] * SECONDS))]['FRAME']
+        processed_frame = FRAMES[address[1]][-1]['FRAME']
 
         # Handle recording behavior
         # If there is motion in this frame or there was recently motion (and it is recording), then act accordingly
@@ -97,20 +97,19 @@ def stream_camera(client, address, id):
                 print('{} [INFO]: Video recording saved to {}'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), output_file))
 
 
-        # Write the latest frame to a file called <camera id><a/b>.jpg, which will then be used by flask server
+        # Write the latest frame to a file called <camera id><alpha character>.jpg, which will then be used by flask server
         # Example: flask webserver reads 1b while 1a is being written to.
-        # This is probably NOT the most efficient way of streaming, but it provides a fairly smooth stream.
-        name = 'a' if alternator else 'b'
-        filename = 'data/stream_frames/{}{}.jpg'.format(id, name)
-        alternator = not alternator # alternate (writing to) frames
-        #if not recording:
-            #cv.imwrite(filename, frames[address[1]][0])
-        #else:
-        cv.imwrite(filename, processed_frame)
+        # This is NOT the most efficient way of streaming, but it provides a fairly smooth stream.
+        letter = helper.ALPHA[alpha_index]
 
-        # Save which image was most recently output (a or b)
+        # Save which alpha index was most recently output (a, b, c, ...)
         with open('data/stream_frames/{}.txt'.format(helper.getClientCount()), 'w') as file:
-             file.write(name)
+             file.write(helper.ALPHA[alpha_index - 1]) # Write down previous frame (that will have been completed)
+
+        alpha_index = alpha_index + 1 if (alpha_index + 1 < len(helper.ALPHA)) else 0
+
+        filename = 'data/stream_frames/{}{}.jpg'.format(id, letter)
+        cv.imwrite(filename, processed_frame)
 
         #cv.imshow('Client: {} ({})'.format(id, address[0]), processed_frame) # TODO: delete this. dev purposes only
 

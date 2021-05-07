@@ -7,9 +7,9 @@ import datetime
 import functions as helper
 
 #HOST = '192.168.0.8' # Server address
-#HOST = '127.0.0.1'
+HOST = '127.0.0.1'
 #HOST = '0.0.0.0'
-HOST = '192.168.0.9'
+#HOST = '192.168.0.9'
 PORT = 8080
 
 def main():
