@@ -1,15 +1,13 @@
 import cv2 as cv
 import socket
 import pickle
-import struct
 import time
 import datetime
-import functions as helper
+import systemhelper as helper
 
 #HOST = '192.168.0.8' # Server address
-#HOST = '127.0.0.1'
-#HOST = '0.0.0.0'
-HOST = '192.168.0.9'
+HOST = '127.0.0.1'
+#HOST = '192.168.0.9'
 PORT = 8080
 
 def main():
@@ -18,19 +16,12 @@ def main():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.connect((HOST, PORT))
 
-    print('{} [INFO]: Established connection with server'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-    FPS = helper.getFPS()
+    print('{} [INFO]: Established connection with server'.format(helper.TIMESTAMP))
+functions
+    # Set and calibrate camera
+    camera, FPS = helper.calibrateCamera()
 
-    print('{} [INFO]: Calibrating camera (retreiving FPS)'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-    camera = cv.VideoCapture(0)
-    if not camera.isOpened():
-        # Attempt to open capture device once more, after a failure
-        camera.open()
-        if not camera.isOpened():
-            print('{} [INFO]: Issue opening camera'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
-            exit()
-
-    print('{} [INFO]: Beginning stream to server'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+    print('{} [INFO]: Beginning stream to server'.format(helper.TIMESTAMP))
     ret, frame1 = camera.read()
     ret, frame2 = camera.read()
     connection_failed = False
@@ -47,13 +38,13 @@ def main():
         pickled_data = pickle.dumps(data)
 
         #pickled_data = pickle.dumps(frame) # TODO: delete
-        #server.sendall(struct.pack("P", len(pickled_data))+pickled_data) # TODO: delete
+        #server.sendall(helper.struct.pack("P", len(pickled_data))+pickled_data) # TODO: delete
         try:
-            server.sendall(struct.pack("P", len(pickled_data))+pickled_data)
+            server.sendall(helper.struct.pack("P", len(pickled_data))+pickled_data)
 
         # Handle connection issues
         except socket.error:
-            print('{} [INFO]: Connection to server disrupted'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+            print('{} [INFO]: Connection to server disrupted'.format(helper.TIMESTAMP))
             connected = False
             server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -64,14 +55,14 @@ def main():
                     connected = True
                     if connection_failed:
                         # Connection was re-established after it recently failed
-                        print('{} [INFO]: Re-established connection with server'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+                        print('{} [INFO]: Re-established connection with server'.format(helper.TIMESTAMP))
                         connection_failed = False
                 except socket.error:
                     connected = False
                     connection_failed = True
                     camera.release()
                     time.sleep(5) # Wait 5 seconds before trying to reconnect
-                    print('{} [INFO]: Attempting to re-establish connection with server'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+                    print('{} [INFO]: Attempting to re-establish connection with server'.format(helper.TIMESTAMP))
                     camera.open(0)
 
         #cv.imshow('frame', frame1) # TODO: delete
@@ -84,4 +75,4 @@ if __name__ == '__main__':
         main()
     except Exception as e:
         cv.destroyAllWindows() # TODO: delete
-        print('{}[INFO]: Exiting Script because of error. Cause: {}'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), e))
+        print('{}[INFO]: Exiting Script because of error. Cause: {}'.format(helper.TIMESTAMP, e))

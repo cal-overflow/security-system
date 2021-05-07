@@ -1,14 +1,25 @@
+# Helper functions and constants used by webserver, server, and client scripts
 import cv2 as cv
 import smtplib
-import datetime
-import time
+import struct
+import datetime, time
 
+###############################################
 # CONSTANTS
-THRESHOLD = 10000 # Movement detection threshold
-ALPHA = ['a', 'b', 'c', 'd', 'e', 'f', 'g', 'h', 'i', 'j', 'k', 'l', 'm', 'n', 'o'] # Used
+##############################################
 
-# data for each frame = {'img': image, 'motion': boolean, 'FPS': fps, 'WIDTH': width, 'HEIGHT': height}
-def record(frames, already_recording, SECONDS, id):
+THRESHOLD = 10000 # Movement detection threshold
+STANDBY_FRAME = cv.imread('static/standby.jpg', cv.IMREAD_UNCHANGED)
+PACKAGE_SIZE = struct.calcsize("P")
+MAX_CLIENTS = 3
+SECONDS = 10
+TIMESTAMP = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+
+###############################################
+# HELPER FUNCTIONS
+##############################################
+
+def record(frames, already_recording, id):
     '''Record video when motion is detected. Includes the few seconds prior to motion detection and few seconds after the motion stops.'''
     FPS = frames[0]['FPS']
     WIDTH = frames[0]['WIDTH']
@@ -71,9 +82,16 @@ def alert(id):
     except:
         print('There was an issue sending alerts.')
 
-def getFPS():
-    '''Get the true FPS (including processing) from the camera'''
+def calibrateCamera():
+    '''Calibrate the camera. Get the true FPS (including processing) from the camera'''
+    print('{} [INFO]: Calibrating camera'.format(TIMESTAMP))
     camera = cv.VideoCapture(0)
+    if not camera.isOpened():
+        # Attempt to open capture device once more, after a failure
+        camera.open()
+        if not camera.isOpened():
+            print('{} [INFO]: Issue opening camera'.format(TIMESTAMP))
+            exit()
 
     start_time = time.time()
     count = 0
@@ -81,8 +99,7 @@ def getFPS():
         ret, frame = camera.read()
         count += 1 # number of frames
 
-    camera.release()
-    return int(count / 10)
+    return camera, int(count / 10)
 
 def detectMotion(f1, f2, WIDTH, HEIGHT):
     '''Detect motion given two frames. Returns boolean and frame with motion area outlined.'''
@@ -149,3 +166,18 @@ def toggleStatus(init=None):
         file.write(new)
 
     return new
+
+def unlock(id):
+    with open('data/stream_frames/{}/lock.txt'.format(id), 'w') as file:
+        file.write('unlocked')
+
+def lock(id):
+    with open('data/stream_frames/{}/lock.txt'.format(id), 'w') as file:
+        file.write('locked')
+
+def readLock(id):
+    with open('data/stream_frames/{}/lock.txt'.format(id), 'r') as file:
+        return file.read().strip('\n')
+
+def setStandby(id):
+    cv.imwrite('data/stream_frames/{}/frame.jpg'.format(id), STANDBY_FRAME)

@@ -1,17 +1,12 @@
+from multiprocessing import Process as process
 import cv2 as cv
 import socket
 import pickle
-import struct
-import time
-import datetime
-from multiprocessing import Process as process
-import functions as helper
+import datetime, time
+import systemhelper as helper
 
 HOST = '0.0.0.0'
-#HOST = '127.0.0.1'
 PORT = 8080
-MAX_CLIENTS = 3
-SECONDS = 10
 CLIENTS = []
 PROCESSES = []
 FRAMES = {}
@@ -20,29 +15,33 @@ def stream_camera(client, address, id):
     '''Stream video from a client'''
 
     # Do not stream this camera if there are more than 5 devices connected
-    if helper.getClientCount() > MAX_CLIENTS:
+    clientCount = helper.getClientCount()
+    if clientCount > helper.MAX_CLIENTS:
         return
 
-    alpha_index = 0 # Index of which frame is being written (a, b, c, ...). Important for webserver displaying full images
     FRAMES[address[1]] = [] # This client has no previously saved frames (for recording)
-    package_size = struct.calcsize("P")
     encoded_data, message_size, msg_size = b'', None, None
     recording = False # Not recoridng when stream begins
+    alternator = True
 
     # Continuous streaming
     while True:
         # Change this camera's id when any preceding cameras disconnect (ie., when camera 3 disconnects, camera 4 takes its place as camera 3)
-        if id > helper.getClientCount():
+        if id > helper.getClientCount() and clientCount > helper.getClientCount():
             id -= 1
+            clientCount -= 1
 
         # Recieve encoded_data stream from socket (client)
-        while len(encoded_data) < package_size:
+        while len(encoded_data) < helper.PACKAGE_SIZE:
             received = client.recv(4096)
 
             if not received:
+                setStandby(id) # Set standby image as frame
+
                 # Close connection since nothing was received (client is no longer communicating)
+                # Remove this process from PROCESSES and update client count
                 client.close()
-                print('{} [INFO]: Socket {} (client {}) disconnected'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), address[1], id))
+                print('{} [INFO]: Socket {} (client {}) disconnected'.format(helper.TIMESTAMP, address[1], id))
                 #PROCESSES.pop(id - 1) # camera 3 is index 2 (3rd process) # TODO: see if this works
                 FRAMES.pop(address[1], None)
                 helper.updateClientCount(helper.getClientCount() - 1)
@@ -52,9 +51,9 @@ def stream_camera(client, address, id):
                 encoded_data += received
 
         # Determine the size of the incoming message and receive it
-        message_size = encoded_data[:package_size]
-        encoded_data = encoded_data[package_size:]
-        msg_size = struct.unpack("P", message_size)[0]
+        message_size = encoded_data[:helper.PACKAGE_SIZE]
+        encoded_data = encoded_data[helper.PACKAGE_SIZE:]
+        msg_size = helper.struct.unpack("P", message_size)[0]
 
         while len(encoded_data) < msg_size:
             encoded_data += client.recv(4096)
@@ -67,68 +66,76 @@ def stream_camera(client, address, id):
         # Update frames (for recording)
         temp_frames = FRAMES[address[1]]
         temp_frames.append(data)
-        if len(temp_frames) > data['FPS'] * SECONDS and not recording:
+        if len(temp_frames) > data['FPS'] * helper.SECONDS and not recording:
             temp_frames.pop(0)
         FRAMES[address[1]] = temp_frames
 
-        # Process the frame from 10 seconds ago
-        #if len(FRAMES[address[1]]) < data['FPS'] * SECONDS:
-            #processed_frame = FRAMES[address[1]][0]['FRAME']
-        #else:
-            #processed_frame = FRAMES[address[1]][(len(FRAMES[address[1]]) - (data['FPS'] * SECONDS))]['FRAME']
-        processed_frame = FRAMES[address[1]][-1]['FRAME']
+        # Process the frame (add timestamp, handle recording), and update FRAMES, if necessary
+        processed_frame, recording, temp_frames = processFrame(data, address, id, recording, FRAMES)
+        if temp_frames is not None:
+            FRAMES[address[1]] = temp_frames
 
-        # Handle recording behavior
-        # If there is motion in this frame or there was recently motion (and it is recording), then act accordingly
-        # Ignore if this is the first frame sent from client
-        if (data['MOTION'] and len(FRAMES[address[1]]) != 1) or recording:
-            if (helper.getStatus() == 'on') and not recording:
-                # Alert status is 'on' and recording just began. Send ALERT
-                helper.alert(id)
-                recording = True # TODO: DELETE
-            recording, output_file = helper.record(FRAMES[address[1]], recording, SECONDS, id)
-            processed_frame = helper.drawRecording(FRAMES[address[1]][-1]['FRAME'], FRAMES[address[1]][-1]['WIDTH'], FRAMES[address[1]][-1]['HEIGHT'])
-
-            if not recording:
-                # No longer recording. Throw away all but last few FRAMES
-                temp_frames = FRAMES[address[1]]
-                temp_frames = temp_frames[(len(temp_frames) - (data['FPS'] * SECONDS)):]
-                FRAMES[address[1]] = temp_frames
-                print('{} [INFO]: Video recording saved to {}'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), output_file))
-
-
-        # Write the latest frame to a file called <camera id><alpha character>.jpg, which will then be used by flask server
-        # Example: flask webserver reads 1b while 1a is being written to.
-        # This is NOT the most efficient way of streaming, but it provides a fairly smooth stream.
-        letter = helper.ALPHA[alpha_index]
-
-        # Save which alpha index was most recently output (a, b, c, ...)
-        with open('data/stream_frames/{}/frame.txt'.format(helper.getClientCount()), 'w') as file:
-             file.write(helper.ALPHA[alpha_index - 2]) # Write down a previous frame (that will have been completed)
-
-        alpha_index = alpha_index + 1 if (alpha_index + 1 < len(helper.ALPHA)) else 0
-
-        filename = 'data/stream_frames/{}/{}.jpg'.format(id, letter)
-        cv.imwrite(filename, processed_frame)
+        # Write every other frame to file for webserver to stream.
+        # (NOTE: Alternating makes the stream smoother, since file is not locked and being written to as much)
+        if alternator:
+            writeToFile(id, processed_frame)
+        alternator = not alternator
 
         #cv.imshow('Client: {} ({})'.format(id, address[0]), processed_frame) # TODO: delete this. dev purposes only
+        cv.waitKey(10)
 
-        cv.waitKey(100)
+def processFrame(data, address, id, recording, FRAMES):
+    '''Process the frame. Handle recording and alert decisions.'''
+    # Handle recording behavior
+    # If there is motion in this frame or there was recently motion (and it is recording), then act accordingly
+    # Ignore if this is the first frame sent from client
+    if (data['MOTION'] and len(FRAMES[address[1]]) != 1) or recording:
+        if (helper.getStatus() == 'on') and not recording:
+            # Alert status is 'on' and recording just began. Send ALERT
+            helper.alert(id)
+
+        # TODO: UNCOMMENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! # TODO!!!!
+        #recording, output_file = helper.record(FRAMES[address[1]], recording, id)
+        processed_frame = helper.drawRecording(data['FRAME'], data['WIDTH'], data['HEIGHT'])
+
+        recording = False # TODO: DELETE!!!!!!!!!!!!!!!! # TODO!!!!!!
+        if not recording:
+            # No longer recording. Throw away all but last few FRAMES
+            temp_frames = FRAMES[address[1]]
+            temp_frames = temp_frames[(len(temp_frames) - (data['FPS'] * helper.SECONDS)):]
+            #print('{} [INFO]: Video recording saved to {}'.format(helper.TIMESTAMP, output_file)) # TODO: uncomment
+
+        else:
+            temp_frames = None
+    else:
+        processed_frame = data['FRAME']
+        temp_frames = None
+
+    return processed_frame, recording, temp_frames
+
+def writeToFile(id, frame):
+    '''Lock the frame file and write the current (most recently received) frame to it. Then unlock frame so webserver can access frame.'''
+    if helper.readLock(id) == 'unlocked':
+        helper.lock(id)
+        filename = 'data/stream_frames/{}/frame.jpg'.format(id)
+
+        cv.imwrite(filename, frame)
+        helper.unlock(id)
 
 def main():
-    print('{} [INFO]: Server running'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+    print('{} [INFO]: Server running'.format(helper.TIMESTAMP))
 
     # Create Server (socket) and bind it to a address/port.
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind((HOST, PORT))
-    server.listen(MAX_CLIENTS)
-    print('{} [INFO]: Listening for (client) sockets'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+    server.listen(helper.MAX_CLIENTS)
+    print('{} [INFO]: Listening for (client) sockets'.format(helper.TIMESTAMP))
 
     while True:
         # Accept connection
         client, address = server.accept()
         helper.updateClientCount(helper.getClientCount() + 1)
-        print('{} [INFO]: Socket {} connected as client {}'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), address, helper.getClientCount()))
+        print('{} [INFO]: Socket {} connected as client {}'.format(helper.TIMESTAMP, address, helper.getClientCount()))
 
         # Create, save, and start process (camera stream)
         p = process(target=stream_camera, args=(client, address, helper.getClientCount(), ))
@@ -150,9 +157,16 @@ if __name__ == '__main__':
             helper.toggleStatus('on') # Set alert status to 'on' by default
             helper.updateClientCount(0) # Ensure that server knows no clients are connected when it restarts. (Connection will be re-established)
 
-            print('{} [INFO]: Server crashed'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+            # Set each client default frame and lock to 'unlocked'
+            standby = cv.imread('static/standby.jpg', cv.IMREAD_UNCHANGED)
+            for i in range(1, 4):
+                helper.unlock(i) # Unlock all frames for next server instance
+                #with open('data/stream_frames/{}/frame.jpg'.format(i), 'r') as file:
+                cv.imwrite('data/stream_frames/{}/frame.jpg'.format(i), standby)
+
+            print('{} [INFO]: Server crashed'.format(helper.TIMESTAMP))
             time.sleep(5)
-            print('{} [INFO]: Restarting server'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+            print('{} [INFO]: Restarting server'.format(helper.TIMESTAMP))
 
             # TODO: move this back to main if necessary, and remove when done developing (won't have cv windows)
             # Close server connection
