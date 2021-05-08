@@ -7,6 +7,7 @@ import systemhelper as helper
 
 #HOST = '192.168.0.8' # Server address
 HOST = '127.0.0.1'
+#HOST = '18.222.112.110'
 #HOST = '192.168.0.9'
 PORT = 8080
 
@@ -16,6 +17,7 @@ def main():
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.connect((HOST, PORT))
 
+    confirmRelationship(server)
     print('{} [INFO]: Established connection with server'.format(helper.TIMESTAMP))
 
     # Set and calibrate camera
@@ -41,7 +43,6 @@ def main():
         #server.sendall(helper.struct.pack("P", len(pickled_data))+pickled_data) # TODO: delete
         try:
             server.sendall(helper.struct.pack("P", len(pickled_data))+pickled_data)
-
         # Handle connection issues
         except socket.error:
             print('{} [INFO]: Connection to server disrupted'.format(helper.TIMESTAMP))
@@ -52,6 +53,7 @@ def main():
             while not connected:
                 try:
                     server.connect((HOST, PORT))
+                    confirmRelationship(server)
                     connected = True
                     if connection_failed:
                         # Connection was re-established after it recently failed
@@ -61,7 +63,7 @@ def main():
                     connected = False
                     connection_failed = True
                     camera.release()
-                    time.sleep(5) # Wait 5 seconds before trying to reconnect
+                    time.sleep(2.5) # Wait 5 seconds before trying to reconnect
                     print('{} [INFO]: Attempting to re-establish connection with server'.format(helper.TIMESTAMP))
                     camera.open(0)
 
@@ -69,6 +71,11 @@ def main():
         frame1 = frame2
         ret, frame2 = camera.read()
         cv.waitKey(1)
+
+def confirmRelationship(server):
+    '''Confirm relationship with server. This acts as an extra
+    handshake that must be made between client and server.'''
+    server.send(b'confirmation')
 
 if __name__ == '__main__':
     try:

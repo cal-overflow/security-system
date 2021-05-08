@@ -5,7 +5,7 @@ import systemhelper as helper
 import datetime, time
 
 HOST = '0.0.0.0'
-PORT = 8001
+PORT = 8000
 app = Flask(__name__)
 PROCESSES = []
 app.config["CACHE_TYPE"] = "null" # TODO: delete
@@ -33,20 +33,10 @@ def getClientStream(id):
             helper.lock(id)
 
             filename = 'data/stream_frames/{}/frame.jpg'.format(id)
-
-            # TODO: see if this does anything. I don't think this works as it should
-            #with open(filename, 'rb') as f:
-                #img_complete = f.read()[-2:] == b'\xff\xd9' # True if jpeg if complete, false otherwise
-
-            #if img_complete:
-                #print('file')
             img = cv.imread(filename, cv.IMREAD_UNCHANGED)
             helper.unlock(id) # Done reading image. Unlock
 
             #possibly unnecessary encoding # TODO: see if this is necessary. might be able to just use cv.imread
-            # Not sure if this if statement helps at all. (Initially this helped with the imencode -> '!image empty error')
-            # TODO: re-visit this error
-            #if type(img) != None:
             try:
                 ret, buffer = cv.imencode('.jpg', img)
             except Exception as e:
@@ -60,12 +50,11 @@ def getClientStream(id):
             time.sleep(.125)
 
 if __name__ == '__main__':
-    # TODO: disable DEBUG mode
-    #while True:
-    try:
-        print('{} [INFO]: Starting webserver on port {}'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), PORT))
-        app.run(host=HOST, port=PORT, debug=False)
-    except Exception as e:
-        print('{} [INFO]: Webserver crashed. Cause:\n{}'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), e))
-        time.sleep(5)
-        print('{} [INFO]: Restarting Webserver'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+    while True:
+        try:
+            print('{} [INFO]: Starting webserver on port {}'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), PORT))
+            app.run(host=HOST, port=PORT, debug=False)
+        except Exception as e:
+            print('{} [INFO]: Webserver crashed. Cause:\n{}'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), e))
+            time.sleep(5)
+            print('{} [INFO]: Restarting Webserver'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))

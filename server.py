@@ -26,13 +26,15 @@ def stream_camera(client, address, id):
 
     # Continuous streaming
     while True:
+        client.settimeout(None)
+
         # Change this camera's id when any preceding cameras disconnect (ie., when camera 3 disconnects, camera 4 takes its place as camera 3)
         #print(id, '>=', helper.getClientCount(), ' and ', helper.getClientCount(), '<', clientCount)
         if id >= helper.getClientCount() and helper.getClientCount() < clientCount:
             print('client {} became client {}'.format(id, id - 1))
             print('helper.getClientCount(): {}\n clientCount: {}'.format(helper.getClientCount(), clientCount))
-            id -= 1
-            clientCount -= 1
+            id -= 1 if (id != 1) else 0
+            clientCount -= 1 if (id != 1) else 0
         elif clientCount < helper.getClientCount():
             clientCount = helper.getClientCount()
 
@@ -41,17 +43,9 @@ def stream_camera(client, address, id):
             received = client.recv(4096)
 
             if not received:
-                helper.setStandby(id) # Set standby image as frame
-
-                # Close connection since nothing was received (client is no longer communicating)
-                # Remove this process from PROCESSES and update client count
-                client.close()
-                print('{} [INFO]: Socket {} (client {}) disconnected'.format(helper.TIMESTAMP, address[1], id))
-                #PROCESSES.pop(id - 1) # camera 3 is index 2 (3rd process) # TODO: see if this works
-                FRAMES.pop(address[1], None)
-                helper.updateClientCount(helper.getClientCount() - 1)
-                print('client Count:', helper.getClientCount())
-                return # exit stream_camera function
+                # Disconnect since client sent nnothing. Exit function
+                disconnect(client, address, FRAMES, id)
+                return
 
             else:
                 encoded_data += received
@@ -62,7 +56,12 @@ def stream_camera(client, address, id):
         msg_size = helper.struct.unpack("P", message_size)[0]
 
         while len(encoded_data) < msg_size:
-            encoded_data += client.recv(4096)
+            try:
+                encoded_data += client.recv(4096)
+            except Exception as e:
+                # Issues receiving data from client. Disconnect and exit function.
+                disconnect(client, address, FRAMES, id)
+                return
 
         # Store and decode the encoded data
         pickled_data = encoded_data[:msg_size]
@@ -82,7 +81,7 @@ def stream_camera(client, address, id):
             FRAMES[address[1]] = temp_frames
 
         # Write every other frame to file for webserver to stream.
-        # (NOTE: Alternating makes the stream smoother, since file is not locked and being written to as much)
+        # (Alternating makes the stream smoother, since file is not locked and being written to as much)
         if alternator:
             writeToFile(id, processed_frame)
         alternator = not alternator
@@ -128,6 +127,17 @@ def writeToFile(id, frame):
         cv.imwrite(filename, frame)
         helper.unlock(id)
 
+def disconnect(client, address, FRAMES, id):
+    '''Handle client disconnection'''
+    print('{} [INFO]: Socket {} (client {}) disconnected'.format(helper.TIMESTAMP, address[1], id))
+    helper.setStandby(id) # Set standby image as frame
+    client.close()
+
+    # Remove this process from PROCESSES and update client count
+    # TODO: #PROCESSES.pop(id - 1) # camera 3 is index 2 (3rd process) # TODO: see if this works
+    FRAMES.pop(address[1], None)
+    helper.updateClientCount(helper.getClientCount() - 1)
+
 def main():
     print('{} [INFO]: Server running'.format(helper.TIMESTAMP))
 
@@ -140,6 +150,27 @@ def main():
     while True:
         # Accept connection
         client, address = server.accept()
+        client.settimeout(5.0)
+
+        if helper.isBlacklisted(address[0]) or helper.getClientCount() == helper.MAX_CLIENTS:
+            # Close connection since they are blacklisted or
+            # there are already the max number of clients connected.
+            print('Blacklisted IP', address[0], 'attempted to connect')
+            client.close()
+            continue # Wait for next client
+
+        # Only continue with this client if they send a confirmation message.
+        # This is sort of a second handshake before the client establishes a video stream to server.
+        try:
+            confirmation = client.recv(1024).decode() # Client should be sending confirmation
+        except (socket.timeout, UnicodeDecodeError):
+            # Client did not send decodable confirmation in time. Disconnect them.
+            helper.addToBlackList(address[0])
+            print('IP', address[0], ' has been blacklisted for failing to confirm connection')
+            client.close()
+            continue # Wait for next client
+
+        # Begin a process for this client's video stream
         helper.updateClientCount(helper.getClientCount() + 1)
         print('{} [INFO]: Socket {} connected as client {}'.format(helper.TIMESTAMP, address, helper.getClientCount()))
 
@@ -155,14 +186,10 @@ def main():
     socket.close() # TODO: see if this should be server.close() instead
 
 if __name__ == '__main__':
-    # TODO: determine if I want this in a while loop or not
     while True:
         try:
-            main()
-        except:
             helper.toggleStatus('on') # Set alert status to 'on' by default
-            helper.updateClientCount(0) # Ensure that server knows no clients are connected when it restarts. (Connection will be re-established)
-
+            helper.updateClientCount(0) # No clients can be connected on startup. (Connection will be re-established)
             # Set each client default frame and lock to 'unlocked'
             standby = cv.imread('static/standby.jpg', cv.IMREAD_UNCHANGED)
             for i in range(1, 4):
@@ -170,10 +197,9 @@ if __name__ == '__main__':
                 #with open('data/stream_frames/{}/frame.jpg'.format(i), 'r') as file:
                 cv.imwrite('data/stream_frames/{}/frame.jpg'.format(i), standby)
 
+            main()
+        except:
             print('{} [INFO]: Server crashed'.format(helper.TIMESTAMP))
+
             time.sleep(5)
             print('{} [INFO]: Restarting server'.format(helper.TIMESTAMP))
-
-            # TODO: move this back to main if necessary, and remove when done developing (won't have cv windows)
-            # Close server connection
-            #cv.destroyAllWindows()

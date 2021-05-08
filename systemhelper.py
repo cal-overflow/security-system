@@ -1,4 +1,4 @@
-# Helper functions and constants used by webserver, server, and client scripts
+# Helpful functions and constants used by webserver, server, and client scripts
 import cv2 as cv
 import smtplib
 import struct
@@ -6,18 +6,18 @@ import datetime, time
 
 ###############################################
 # CONSTANTS
-##############################################
+###############################################
 
 THRESHOLD = 10000 # Movement detection threshold
 STANDBY_FRAME = cv.imread('static/standby.jpg', cv.IMREAD_UNCHANGED)
 PACKAGE_SIZE = struct.calcsize("P")
-MAX_CLIENTS = 3
+MAX_CLIENTS = 5
 SECONDS = 10
 TIMESTAMP = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 ###############################################
 # HELPER FUNCTIONS
-##############################################
+###############################################
 
 def record(frames, already_recording, id):
     '''Record video when motion is detected. Includes the few seconds prior to motion detection and few seconds after the motion stops.'''
@@ -181,3 +181,14 @@ def readLock(id):
 
 def setStandby(id):
     cv.imwrite('data/stream_frames/{}/frame.jpg'.format(id), STANDBY_FRAME)
+
+def addToBlackList(ip):
+    with open('data/blacklist.txt', 'a') as list:
+        list.write(ip)
+
+def isBlacklisted(ip):
+    with open('data/blacklist.txt', 'r') as list:
+        if list.readline().strip('\n') == ip:
+            return True # This IP is blacklisted
+
+    return False # IP was not found in blacklist
