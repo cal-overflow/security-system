@@ -16,14 +16,11 @@ def index():
     '''index (default) route'''
     # Handle posts
     if request.method == 'POST':
-        if 'toggle_form' in request.url_rule.rule:
-            return render_template('index.html', clients=helper.getClientCount(), status=helper.toggleStatus(), selected=helper.getClientCount())
-        else:
-            selection = request.form['stream_selected']
-            return render_template('index.html', clients=helper.getClientCount(), status=helper.getStatus(), selected=selection)
+        # TODO: send an alert notifying that alerts have been turned on/off
+        render_template('index.html', clients=helper.getClientCount(), status=helper.toggleStatus())
 
     # Return page template
-    return render_template('index.html', clients=helper.getClientCount(), status=helper.getStatus(), selected=helper.getClientCount())
+    return render_template('index.html', clients=helper.getClientCount(), status=helper.getStatus())
 
 @app.route('/video_feed/<id>')
 def video_feed(id):

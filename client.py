@@ -17,7 +17,7 @@ def main():
     server.connect((HOST, PORT))
 
     print('{} [INFO]: Established connection with server'.format(helper.TIMESTAMP))
-functions
+
     # Set and calibrate camera
     camera, FPS = helper.calibrateCamera()
 

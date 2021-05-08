@@ -145,7 +145,7 @@ def getClientCount():
 
 def updateClientCount(i):
     '''Update number of clients'''
-    with open('data/clients.txt', 'w') as file:
+    with open('data/clients.txt', 'w+') as file:
         file.write(str(i))
 
 def getStatus():
@@ -162,17 +162,17 @@ def toggleStatus(init=None):
         old = getStatus()
         new = 'on' if (old == 'off') else 'off'
 
-    with open('data/alarm_status.txt', 'w') as file:
+    with open('data/alarm_status.txt', 'w+') as file:
         file.write(new)
 
     return new
 
 def unlock(id):
-    with open('data/stream_frames/{}/lock.txt'.format(id), 'w') as file:
+    with open('data/stream_frames/{}/lock.txt'.format(id), 'w+') as file:
         file.write('unlocked')
 
 def lock(id):
-    with open('data/stream_frames/{}/lock.txt'.format(id), 'w') as file:
+    with open('data/stream_frames/{}/lock.txt'.format(id), 'w+') as file:
         file.write('locked')
 
 def readLock(id):

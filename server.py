@@ -27,16 +27,21 @@ def stream_camera(client, address, id):
     # Continuous streaming
     while True:
         # Change this camera's id when any preceding cameras disconnect (ie., when camera 3 disconnects, camera 4 takes its place as camera 3)
-        if id > helper.getClientCount() and clientCount > helper.getClientCount():
+        #print(id, '>=', helper.getClientCount(), ' and ', helper.getClientCount(), '<', clientCount)
+        if id >= helper.getClientCount() and helper.getClientCount() < clientCount:
+            print('client {} became client {}'.format(id, id - 1))
+            print('helper.getClientCount(): {}\n clientCount: {}'.format(helper.getClientCount(), clientCount))
             id -= 1
             clientCount -= 1
+        elif clientCount < helper.getClientCount():
+            clientCount = helper.getClientCount()
 
         # Recieve encoded_data stream from socket (client)
         while len(encoded_data) < helper.PACKAGE_SIZE:
             received = client.recv(4096)
 
             if not received:
-                setStandby(id) # Set standby image as frame
+                helper.setStandby(id) # Set standby image as frame
 
                 # Close connection since nothing was received (client is no longer communicating)
                 # Remove this process from PROCESSES and update client count
@@ -45,6 +50,7 @@ def stream_camera(client, address, id):
                 #PROCESSES.pop(id - 1) # camera 3 is index 2 (3rd process) # TODO: see if this works
                 FRAMES.pop(address[1], None)
                 helper.updateClientCount(helper.getClientCount() - 1)
+                print('client Count:', helper.getClientCount())
                 return # exit stream_camera function
 
             else:

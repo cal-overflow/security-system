@@ -4,41 +4,54 @@
 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles.css') }}">
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 </head>
-<body>
-<div class="container">
-    <div class="row">
-        <div >
-            <h1 class="center">Security System</h1>
-            <form action="/" id="stream_form" class="container" method="post">
-              <h5 class="center">Camera:
-              {% if clients > 0 %}
-                {% for i in range(0, clients) %}
-                  <a onclick="document.getElementById('stream_selected').innerHTML = '{{i + 1}}';document.getElementById('stream_selected').value = '{{i + 1}}';this.closest('form').submit();return false;"
-                  {% if selected == i + 1 %}
-                    class="selected"
-                  {% endif %}
-                  >
-                  {{i + 1}}</a>
-                {% endfor %}
-                <div class="container" id="video_container">
-                  <img id="stream" src="{{ url_for('video_feed', id=selected) }}">
-                </div>
-                <input type="text" name="stream_selected" id="stream_selected" value="" style="visibility: hidden;">
-            </form>
+<body style="padding-bottom: 50px;">
+  <div class="container">
+      <h1 class="center">Security System</h1>
+          {% if clients == 0 %}
+            <h4 class="off center">No cameras are connected</h4>
+          {% else %}
+          <p class="center">Click on a stream for a better (scalable) view</p>
+            <div id="all_streams" class="container">
+          {% endif %}
 
-            {% else %}
-              <span class="off"> No cameras connected</span>
-            {% endif %}
-            </h5>
 
-            <form action="/toggle_form" id="toggle_form" class="container" method="post">
-              <h1>Alarm: <span class="{{ status }}" id="status">{{ status }}</span></h1>
-              <button type="submit" id="alarm_toggle">Toggle</button>
-            </form>
-          <p><a href="">View Recordings</a></p>
+          {% if clients > 0 and clients % 2 != 0%}
+
+            {% for i in range(1, clients) %}
+              <div class="stream_container">
+                <img class="stream_frame" src="{{ url_for('video_feed', id=i) }}" onclick="window.open(this.src);">
+              </div>
+            {% endfor %}
+
+            <div class="stream_container_odd">
+              <img class="stream_frame" src="{{ url_for('video_feed', id=clients) }}" onclick="window.open(this.src);">
+            </div>
+
+          {% else %}
+            {% for i in range(0, clients) %}
+              <div class="stream_container">
+                <img class="stream_frame" src="{{ url_for('video_feed', id=i+1) }}" onclick="window.open(this.src);">
+              </div>
+            {% endfor %}
+
+        {% endif %}
+      {% if clients > 0 %}
         </div>
-    </div>
-</div>
+      {% endif%}
+
+      <form action="/" id="toggle_form" class="container center" method="post">
+        <h1 class="float-left">Alarm: <span class="{{ status }}" id="status">{{ status }}</span>
+          <span onclick="this.closest('form').submit(); return false;"
+        {% if status == 'on' %}
+          class="white off-bg simple-border clickable">Turn off
+        {% else %}
+          class="white on-bg simple-border clickable">Turn on</span><h1>
+        {% endif %}
+          </span><h1>
+
+      </form>
+    <h5 class="center"><a href="https://youtube.com/playlist?list=PLuyEsesANHiCgLVhmMLaF6ILTcf2qrkdk">View Recordings</a></h5>
+  </div>
 <script>
   /*Prevent form submission if user refreshes window*/
   if ( window.history.replaceState ) {
