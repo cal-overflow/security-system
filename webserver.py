@@ -1,5 +1,6 @@
 from flask import Flask, render_template, Response, request
 from multiprocessing import Process as process
+from waitress import serve
 import cv2 as cv
 import systemhelper as helper
 import datetime, time
@@ -50,11 +51,11 @@ def getClientStream(id):
             time.sleep(.125)
 
 if __name__ == '__main__':
-    while True:
-        try:
-            print('{} [INFO]: Starting webserver on port {}'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), PORT))
-            app.run(host=HOST, port=PORT, debug=False)
-        except Exception as e:
-            print('{} [INFO]: Webserver crashed. Cause:\n{}'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), e))
-            time.sleep(5)
-            print('{} [INFO]: Restarting Webserver'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))
+    #while True:
+    #try:
+    print('{} [WEB]: Starting webserver on port {}'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), PORT))
+    serve(app, host=HOST, port=PORT)
+    #except Exception as e:
+        #print('{} [WEB]: Webserver crashed. Cause:\n{}'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S"), e))
+        #time.sleep(5)
+        #print('{} [WEB]: Restarting Webserver'.format(datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")))

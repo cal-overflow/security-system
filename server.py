@@ -108,7 +108,7 @@ def processFrame(data, address, id, recording, FRAMES):
             # No longer recording. Throw away all but last few FRAMES
             temp_frames = FRAMES[address[1]]
             temp_frames = temp_frames[(len(temp_frames) - (data['FPS'] * helper.SECONDS)):]
-            #print('{} [INFO]: Video recording saved to {}'.format(helper.TIMESTAMP, output_file)) # TODO: uncomment
+            #print('{} [SERVER]: Video recording saved to {}'.format(helper.TIMESTAMP, output_file)) # TODO: uncomment
 
         else:
             temp_frames = None
@@ -129,7 +129,7 @@ def writeToFile(id, frame):
 
 def disconnect(client, address, FRAMES, id):
     '''Handle client disconnection'''
-    print('{} [INFO]: Socket {} (client {}) disconnected'.format(helper.TIMESTAMP, address[1], id))
+    print('{} [SERVER]: Socket {} (client {}) disconnected'.format(helper.TIMESTAMP, address[1], id))
     helper.setStandby(id) # Set standby image as frame
     client.close()
 
@@ -139,13 +139,13 @@ def disconnect(client, address, FRAMES, id):
     helper.updateClientCount(helper.getClientCount() - 1)
 
 def main():
-    print('{} [INFO]: Server running'.format(helper.TIMESTAMP))
+    print('{} [SERVER]: Server running on port {}'.format(helper.TIMESTAMP, PORT))
 
     # Create Server (socket) and bind it to a address/port.
     server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
     server.bind((HOST, PORT))
     server.listen(helper.MAX_CLIENTS)
-    print('{} [INFO]: Listening for (client) sockets'.format(helper.TIMESTAMP))
+    print('{} [SERVER]: Listening for (client) sockets'.format(helper.TIMESTAMP))
 
     while True:
         # Accept connection
@@ -172,7 +172,7 @@ def main():
 
         # Begin a process for this client's video stream
         helper.updateClientCount(helper.getClientCount() + 1)
-        print('{} [INFO]: Socket {} connected as client {}'.format(helper.TIMESTAMP, address, helper.getClientCount()))
+        print('{} [SERVER]: Socket {} connected as client {}'.format(helper.TIMESTAMP, address, helper.getClientCount()))
 
         # Create, save, and start process (camera stream)
         p = process(target=stream_camera, args=(client, address, helper.getClientCount(), ))
@@ -199,7 +199,7 @@ if __name__ == '__main__':
 
             main()
         except:
-            print('{} [INFO]: Server crashed'.format(helper.TIMESTAMP))
+            print('{} [SERVER]: Server crashed'.format(helper.TIMESTAMP))
 
             time.sleep(5)
-            print('{} [INFO]: Restarting server'.format(helper.TIMESTAMP))
+            print('{} [SERVER]: Restarting server'.format(helper.TIMESTAMP))

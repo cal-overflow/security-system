@@ -18,12 +18,12 @@ def main():
     server.connect((HOST, PORT))
 
     confirmRelationship(server)
-    print('{} [INFO]: Established connection with server'.format(helper.TIMESTAMP))
+    print('{} [CLIENT]: Established connection with server'.format(helper.TIMESTAMP))
 
     # Set and calibrate camera
     camera, FPS = helper.calibrateCamera()
 
-    print('{} [INFO]: Beginning stream to server'.format(helper.TIMESTAMP))
+    print('{} [CLIENT]: Beginning stream to server'.format(helper.TIMESTAMP))
     ret, frame1 = camera.read()
     ret, frame2 = camera.read()
     connection_failed = False
@@ -45,7 +45,7 @@ def main():
             server.sendall(helper.struct.pack("P", len(pickled_data))+pickled_data)
         # Handle connection issues
         except socket.error:
-            print('{} [INFO]: Connection to server disrupted'.format(helper.TIMESTAMP))
+            print('{} [CLIENT]: Connection to server disrupted'.format(helper.TIMESTAMP))
             connected = False
             server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -57,14 +57,14 @@ def main():
                     connected = True
                     if connection_failed:
                         # Connection was re-established after it recently failed
-                        print('{} [INFO]: Re-established connection with server'.format(helper.TIMESTAMP))
+                        print('{} [CLIENT]: Re-established connection with server'.format(helper.TIMESTAMP))
                         connection_failed = False
                 except socket.error:
                     connected = False
                     connection_failed = True
                     camera.release()
                     time.sleep(2.5) # Wait 5 seconds before trying to reconnect
-                    print('{} [INFO]: Attempting to re-establish connection with server'.format(helper.TIMESTAMP))
+                    print('{} [CLIENT]: Attempting to re-establish connection with server'.format(helper.TIMESTAMP))
                     camera.open(0)
 
         #cv.imshow('frame', frame1) # TODO: delete
@@ -82,4 +82,4 @@ if __name__ == '__main__':
         main()
     except Exception as e:
         cv.destroyAllWindows() # TODO: delete
-        print('{}[INFO]: Exiting Script because of error. Cause: {}'.format(helper.TIMESTAMP, e))
+        print('{}[CLIENT]: Exiting Script because of error. Cause: {}'.format(helper.TIMESTAMP, e))

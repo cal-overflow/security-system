@@ -14,6 +14,7 @@ echo "on" > data/alarm_status.txt
 echo "0" > data/clients.txt
 
 # Install python module dependencies (doesn't work for all environments)
-pip install --upgrade pip
-pip install opencv-python-headless
-pip install flask
+#pip install --upgrade pip
+#pip install opencv-python-headless
+#pip install flask
+#pip install waitress
