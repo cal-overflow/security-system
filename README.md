@@ -2,17 +2,19 @@
 Custom built security system
 
 ## Deploying the system:
-### Pip install the following modules:
+1.  Pip install the following modules:
  - opencv
  - flask
  - waitress
  - pickle
 
-## Deploy the Backend:
+2. Deploy the Backend:
 Run:
-python3 server.py
-python3 webserver.py
+`python3 server.py`
 
-## Connecting client (camera):
+`python3 webserver.py`
+
+3. Connecting client (camera):
 Change HOST url (to match where server.py is deployed) and run:
-python3 client.py
+
+`python3 client.py`
