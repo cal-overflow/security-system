@@ -84,13 +84,13 @@ def alert(id):
 
 def calibrateCamera():
     '''Calibrate the camera. Get the true FPS (including processing) from the camera'''
-    print('{} [INFO]: Calibrating camera'.format(TIMESTAMP))
+    print('{} [CLIENT]: Calibrating camera'.format(TIMESTAMP))
     camera = cv.VideoCapture(0)
     if not camera.isOpened():
         # Attempt to open capture device once more, after a failure
         camera.open()
         if not camera.isOpened():
-            print('{} [INFO]: Issue opening camera'.format(TIMESTAMP))
+            print('{} [CLIENT]: Issue opening camera'.format(TIMESTAMP))
             exit()
 
     start_time = time.time()
