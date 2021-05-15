@@ -3,9 +3,7 @@ Custom built security system
 
 ## Deploying the system:
 
----
-
-### 1) Pip install the following modules:
+### 1) Pip install the following python3 modules:
 
 ### Server:
 
