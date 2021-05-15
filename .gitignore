@@ -1,5 +1,8 @@
 __pycache__
 .vs/
+data/
+credentials.txt
+.env
 
 # Files used for miscellaneous scripting development
 misc.py
@@ -9,7 +12,3 @@ app.py
 test.py
 skeleton.py
 testEmail.py
-
-# Misc
-data/
-credentials.txt
