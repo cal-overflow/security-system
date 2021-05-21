@@ -3,6 +3,7 @@ import cv2 as cv
 import smtplib
 import struct
 import datetime, time
+from decouple import config as ENV
 
 ###############################################
 # CONSTANTS
@@ -11,7 +12,7 @@ import datetime, time
 THRESHOLD = 10000 # Movement detection threshold
 STANDBY_FRAME = cv.imread('static/standby.jpg', cv.IMREAD_UNCHANGED)
 PACKAGE_SIZE = struct.calcsize("P")
-MAX_CLIENTS = 5
+MAX_CLIENTS = int(ENV('MAX_CLIENTS'))
 SECONDS = 10
 TIMESTAMP = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
@@ -55,8 +56,8 @@ def record(frames, already_recording, id):
 def alert(id):
     return # TODO: DELETE THIS
     '''Notify (via email) that motion has been detected.'''
-    gmail_user = 'cl.s.system.notifications@gmail.com'
-    gmail_password = ''
+    gmail_user = ENV('GMAIL_USER')
+    gmail_password = ENV('GMAIL_APP_PASSWORD')
 
     sent_from = gmail_user
     to = ['cl.s.system.notifications@gmail.com', 'lislechristian@gmail.com'] # Email recipients here

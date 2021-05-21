@@ -8,14 +8,15 @@ Custom built security system
 ### Server:
 
   - opencv
+  - pickle
+  - decouple
   - flask
   - waitress
-  - pickle
 
 ### Client:
   - opencv
-  - flask
   - pickle
+  - decouple
 
 ---
 
@@ -33,6 +34,6 @@ Custom built security system
 
 ### 3) Deploy and connect the client(s):
 
-  Change the HOST url (found in `.env` file) and run:
+  Change the HOST url in `client.py` and run:
 
   `python3 client.py`
