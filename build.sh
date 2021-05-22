@@ -21,7 +21,7 @@ if test -f "$ENV_FILE"; then
   max=$(grep MAX_CLIENTS .env | cut -d '=' -f2)
 else
   max=5
-  echo "[BUILD] .env file not found.\n[BUILD] Construcing new .env file with a default value of 5 clients maximum."
+  echo "[BUILD] .env file not found.\n[BUILD] Construcing new .env file with a default MAX_CLIENTS of 5."
   echo "MAX_CLIENTS=${max}\nGMAIL_USER=\nGMAIL_APP_PASSWORD=" > .env
 fi
 
@@ -80,4 +80,4 @@ echo "${SEPERATOR}\n[BUILD] Installing Python modules using pip. ${WARNING}"
   exit
 }
 
-echo "[SUCCESS] Your environment appars to be sufficient for this program. View the README (https://github.com/ChristianLisle/Security-System) for information on how to run the program."
+echo "[SUCCESS] Your environment appears to be sufficient for this program. View the README (https://github.com/ChristianLisle/Security-System) for information on how to run the program."
