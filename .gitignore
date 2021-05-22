@@ -1,5 +1,6 @@
 __pycache__
 .vs/
+.DS_STORE
 data/
 credentials.txt
 .env

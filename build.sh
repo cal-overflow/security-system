@@ -1,56 +1,83 @@
+SEPERATOR="---------------------------------------------------";
+echo "[ABOUT] Security System program by Christian Lisle (http://christianlisle.com)"
+echo "[ABOUT] Learn More about this project: https://github.com/ChristianLisle/Security-System"
+echo "[ABOUT] This bash script constructs necessary storage arrangements and ensures that the local environment is suitable to run the program."
 # Build the environment folders and files needed for storing data
-echo "[BUILD] Constructing data storage directories."
-mkdir data
-mkdir data/recordings
-mkdir data/stream_frames
+echo "${SEPERATOR}\n[BUILD] Constructing data storage directories, setting data values, and creating essential storage files."
 
-echo "[BUILD] Checking for .env file."
+directories=("data" "data/recordings" "data/stream_frames")
+
+for directory in ${directories[@]}
+do
+  DIR="${directory}"
+  if [ ! -d "$DIR" ]; then
+    echo "[BUILD] Creating directory: ${directory}"
+    mkdir "${directory}"
+  fi
+done
+
 ENV_FILE=.env
 if test -f "$ENV_FILE"; then
   max=$(grep MAX_CLIENTS .env | cut -d '=' -f2)
 else
-  echo "[BUILD] .env file not found. Construcing new .env file with a default value of 5 clients maximum."
   max=5
-  echo "MAX_CLIENTS=${max}" > .env
+  echo "[BUILD] .env file not found.\n[BUILD] Construcing new .env file with a default value of 5 clients maximum."
+  echo "MAX_CLIENTS=${max}\nGMAIL_USER=\nGMAIL_APP_PASSWORD=" > .env
 fi
 
 for i in `seq 1 $max`
 do
-  mkdir data/stream_frames/$i
+  if [ ! -d "${directories[2]}/${i}" ]; then
+    echo "[BUILD] Creating storage directory: data/stream_frames/${i}"
+    mkdir data/stream_frames/$i
+  fi
 done
 
-echo "[BUILD] Initializing essential data files."
 touch data/blacklist.txt
 echo "on" > data/alarm_status.txt
 echo "0" > data/clients.txt
 
-
-# Ensure that user has python 3.8.5 or later installed. Let them know if they do not.
-echo "[BUILD] Checking Python environment"
-
+echo "${SEPERATOR}\n[BUILD] Checking Python version"
 pvs="$(python3 --version)"
+IFS='.' read -r -a version <<< "${pvs:7:20}" # convert Python version string to array (i.e., "3.8.5" to 3 8 5)
 
-if [[ "${pvs:7:1}" = "3" ]]; then
-  echo "[BUILD] Python3 has been detected on your machine."
+# Check that machine is using Python 3.8.5 or later
+valid=false
+if [ $((${version[0]} + 0)) == 3 ]; then
+  if [ $((${version[1]} + 0)) == 8 ] && [ $((${version[2]} + 0)) -ge 5 ]; then
+      valid=true
+  elif [ $((${version[1]} + 0)) -gt 8 ]; then
+    valid=true
+  fi
+elif [[ $((${version[0]} + 0)) -gt 3 ]]; then
+  valid=true
+fi
+
+if [ valid ]; then
+  echo "[BUILD] Your Python version (${pvs:7:10}) is sufficient."
 else
-  echo "[BUILD FAIL] Python3 has not been found. Please install Python 3.8.5 or later and re-run this script."
-  exit
+  echo "[BUILD] Your Python version (${pvs:7:10}) is older than the recommended version, Python 3.8.5. Consider updating before running the program."
 fi
 
-echo "\nEnsure python is up to date:\nLocal version: ${pvs:7:10}\nRequired version: 3.8.5 or later\n"
+# Install python module dependencies.
+echo "${SEPERATOR}\n[BUILD] Installing Python modules using pip. ${WARNING}"
 
-# Install python module dependencies (doesn't work for all environments)
-echo "Installing Python modules using pip".
-pipvs="$(pip --version)"
-if [[ "${pipvs:0:4}" != "pip" ]]; then
-  echo "[BUILD FAIL] Cannot detect pip."
-  echo "\n---SOLUTION---\nEither\n 1) Install pip and re-run this script, or\n 2) manually install the following modules using pip."
-  echo "opencv-python-headless\npython-decouple\nflask\nwaitress"
+# Install pip commands using pip3 or pip. If neither commands work, alert the user.
+{
+  pip3 install --upgrade pip
+  pip3 install opencv-python-headless
+  pip3 install python-decouple
+  pip3 install flask
+  pip3 install waitress
+} || {
+  pip install --upgrade pip
+  pip install opencv-python-headless
+  pip install python-decouple
+  pip install flask
+  pip install waitress
+}|| {
+  echo "[FAILURE] Could not install Python modules using pip. Manually install Python modules listed on the README. Your environment should then be ready."
   exit
-fi
+}
 
-pip install --upgrade pip
-#pip install opencv-python-headless
-#pip install python-decouple
-#pip install flask
-#pip install waitress
+echo "[SUCCESS] Your environment appars to be sufficient for this program. View the README (https://github.com/ChristianLisle/Security-System) for information on how to run the program."
