@@ -53,7 +53,12 @@ done
 
 
 echo "[${deploy} BUILD] Checking Python version"
-pvs="$(python3 --version)"
+{
+  pvs="$(python3 --version)"
+} || {
+  echo "${red}[BUILD FAILURE]${reset} Python3 could not be detected on your machine. View step 3 on the README.md to learn how to install a recent version of Python."
+  exit
+}
 IFS='.' read -r -a version <<< "${pvs:7:20}" # convert Python version string to array (i.e., "3.8.5" to 3 8 5)
 
 # Check that machine is using Python 3.8.5 or later

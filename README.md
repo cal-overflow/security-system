@@ -11,13 +11,14 @@ This security system works has three main components.
 
 **Client:** Sends video feed to the Socket Server.
 
----
+The Socket Server and Web Server run on the same machine, whereas the client(s) run separately.
+
 ## Environment requirements:
+
  1. [Python 3.8.5](https://www.python.org/downloads/release/python-385/) or later
  2. [Pip](https://pypi.org/project/pip/) (package installer for Python)
  3. [GNU Screen](https://www.gnu.org/software/screen/) (only required for server side)
 
----
 ## Deploying the system:
 
 #### 1) Clone the repository
@@ -44,7 +45,7 @@ This security system works has three main components.
 
   The quickest solution would be to check your Pip installation and manually install the required Python packages using Pip:
 
-##### Server:
+#### Server:
 
   - opencv
   - pickle
@@ -52,7 +53,7 @@ This security system works has three main components.
   - flask
   - waitress
 
-##### Client:
+#### Client:
   - opencv
   - pickle
   - decouple
@@ -62,13 +63,11 @@ This security system works has three main components.
 
 ##### Server:
 
-  Deploy both Socket Server and Webserver in their own (detached) screens:
+  Deploy both Socket Server and Web Server in their own (detached) screens:
 
     screen -d -m -S server bash -c 'python3 server.py' && screen -d -m -S webserver bash -c 'python3 webserver.py'
 
   Or, just manually run both scripts: `python3 webserver.py` and `python3 server.py`.
-
-
 
 ##### **Clients:**
 
@@ -78,4 +77,4 @@ This security system works has three main components.
 #### 6) Viewing the Security System website:
   By default, the flask server (`webserver.py`) runs on port `8000`. You can view the website by visiting `http://serverIP:8000` on your browser, where `serverIP` is the local IP address of the machine acting as the Server.
 
-  If you are trying to view the server from an outside network, then you will have to use the public IP address of the server, and might have to deal with some port forwarding. If that is the case, you may want to consider [port forwarding](https://en.wikipedia.org/wiki/Port_forwarding) and learning about [static vs. dynamic IP addresses](https://support.google.com/fiber/answer/3547208?hl=en).
+  If you are trying to view the server from an outside network, then you will have to use the public IP address of the server, and might have to deal with some advanced networking. If that is the case, you may want to consider [port forwarding](https://en.wikipedia.org/wiki/Port_forwarding) and learning about [static vs. dynamic IP addresses](https://support.google.com/fiber/answer/3547208?hl=en).
