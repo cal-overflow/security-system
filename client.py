@@ -5,10 +5,9 @@ import time
 import datetime
 import systemhelper as helper
 
-#HOST = '192.168.0.8' # Server address
-HOST = '127.0.0.1'
+# Server address and port
+HOST = '127.0.0.1' # Replace with the server address/url
 #HOST = '18.222.112.110'
-#HOST = '192.168.0.9'
 PORT = 8080
 
 def main():
