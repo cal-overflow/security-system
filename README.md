@@ -53,7 +53,7 @@ The Socket Server and Web Server must run on the same machine, whereas the clien
   - flask
   - waitress
 
-#### Client:
+#### Clients:
   - opencv
   - pickle
   - decouple
@@ -61,7 +61,7 @@ The Socket Server and Web Server must run on the same machine, whereas the clien
 
 ### 5) Start the program
 
-##### Server:
+#### Server:
 
   Deploy both Socket Server and Web Server in their own (detached) screens:
 
@@ -69,7 +69,7 @@ The Socket Server and Web Server must run on the same machine, whereas the clien
 
   Or, just manually run both scripts: `python3 webserver.py` and `python3 server.py`.
 
-##### **Clients:**
+#### Clients:
 
   Before you can deploy a client, you must change the `HOST` address found in the `client.py` script to match the URL of the machine running the Server. You can then run the client script `python3 client.py` and wait for the client to connect.
 
