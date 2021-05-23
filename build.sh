@@ -44,6 +44,7 @@ do
       fi
     done
 
+    touch data/whitelist.txt
     touch data/blacklist.txt
     echo "on" > data/alarm_status.txt
     echo "0" > data/clients.txt

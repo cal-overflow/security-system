@@ -1,5 +1,9 @@
-html, body  { margin: 0 0 0 0; padding: 0 0 0 0; }
+html, body, .no-padding-margin  { margin: 0 0 0 0; padding: 0 0 0 0; }
+html { background-color: #14171c; }
+body  { background-color: #f2f2f2; }
 * { font-size: 1.125em; }
+a  { color: #e02b20; }
+a:hover { text-decoration: none; }
 .container  { width: 100%; }
 .clickable  { cursor: pointer; }
 .white  { color: white; }
@@ -9,42 +13,79 @@ html, body  { margin: 0 0 0 0; padding: 0 0 0 0; }
 .off-bg  { background-color: red; }
 .simple-border {  border: 1px black solid; padding: 4px; border-radius: 4px; }
 .center { text-align: center; }
-.stream_frame {border: 2px black outset; cursor: zoom-in; }
+.stream_frame {cursor: zoom-in; }
+.half-width { width: 50%; }
 .float-left { float: left; }
 .float-right { float: right; }
-#all_streams  { min-height: 200px; }
-#all_streams, .stream_container, .stream_container_odd { background: black; }
+.rounded { border-radius: 5px; }
+.button { background-color: #e0e0e0;}
+
+/*#all_streams, .stream_container, .stream_container_odd {  }*/
+
+#main_container {
+  min-height: 60vh;
+}
+
+#logo {
+  padding-top: 10px;
+  margin-top: 0px;
+  text-align: center;
+}
+#logo img {
+  width: 64px;
+  height: auto;
+}
+
+#all_streams  {
+  overflow: auto;
+  width: 96%;
+  margin: 0 auto;
+  border-radius: 3px;
+  background: #2e2e2e;
+}
+
 
 #toggle_form  {
   width: 80%;
   margin: 0 auto;
   clear: both;
-}
-
-#stream_container  {
-  margin: 0 0 0 0;
-  padding: 0 0 0 0;
   text-align: center;
 }
 
-.video {
+.stream_container, .stream_container_odd {
+  margin: 10px 0 5px 0;
+  padding: 10px 0 5px 0;
+  text-align: center;
+}
+
+.stream_frame {
   min-width: 480px;
   max-width: 1280px;
   max-height: 100%;
   margin: 0 auto;
+  border-radius: 3px;
 }
 
-
-/*@media only screen and (max-width: 1080px)  {
-
+footer  {
+  padding-top: 10px;
+  background-color: #14171c;
+  width: 100vw;
+  color: #ededed;
+  text-align: center;
+  overflow: auto;
 }
-*/
+
 @media only screen and (orientation: portrait)  {
+  #all_streams  {
+    max-width: 1400px;
+    width: 98%;
+  }
   .stream_frame {
     width: 98%;
     height: auto;
     margin: 0 auto;
   }
+  #extras_container div, footer div  { width: 100%; }
 }
 
 @media only screen and (orientation: landscape) {
@@ -61,9 +102,13 @@ html, body  { margin: 0 0 0 0; padding: 0 0 0 0; }
     text-align: center;
   }
   .stream_frame  {
-    width: 80%;
+    width: 90%;
     max-width: 900px;
     max-height: 800px;
     margin: 0 auto;
+  }
+  #extras_container div, footer div  {
+    width: 50%;
+    float: left;
   }
 }

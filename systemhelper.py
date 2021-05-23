@@ -2,7 +2,7 @@
 import cv2 as cv
 import smtplib
 import struct
-import datetime, time
+import datetime, time, math
 from decouple import config as ENV
 
 ###############################################
@@ -87,6 +87,18 @@ def calibrateCamera():
     '''Calibrate the camera. Get the true FPS (including processing) from the camera'''
     print('{} [CLIENT]: Calibrating camera'.format(TIMESTAMP))
     camera = cv.VideoCapture(0)
+    width = camera.get(cv.CAP_PROP_FRAME_WIDTH)
+    height = camera.get(cv.CAP_PROP_FRAME_HEIGHT)
+
+    # Adjust frame size if it is excessively large
+    while width * height  >= 1000000:
+        width *= 0.75
+        height *= 0.75
+
+    # OpenCV will override input and round to the closest (recognized) resolution. For example, I set res to 1900x1070 and it will override as 1920x1080.
+    camera.set(3, width)
+    camera.set(4, height)
+
     if not camera.isOpened():
         # Attempt to open capture device once more, after a failure
         camera.open()
@@ -122,7 +134,7 @@ def detectMotion(f1, f2, WIDTH, HEIGHT):
             detected = True
 
             cv.rectangle(frame, (x, y), (x+w, y+h), (255, 255, 255), 1)
-            cv.putText(frame, 'MOTION', (10, 16), cv.FONT_HERSHEY_PLAIN, 1, (0, 0, 224), 2, cv.FILLED, False)
+            cv.putText(frame, 'MOTION', (10, 20), cv.FONT_HERSHEY_PLAIN, 1.25, (0, 0, 224), 2, cv.FILLED, False)
 
     return detected, frame
 
@@ -134,7 +146,7 @@ def drawTime(frame, WIDTH, HEIGHT):
 def drawRecording(frame, WIDTH, HEIGHT):
     '''Draw a recording message on the given frame'''
     text = 'RECORDING' if (int(time.time()) % 2 == 0) else ''
-    cv.putText(frame, text, (WIDTH - 140, 16), cv.FONT_HERSHEY_PLAIN, 1, (0, 0, 224), 2, cv.FILLED, False)
+    cv.putText(frame, text, (WIDTH - 140, 20), cv.FONT_HERSHEY_PLAIN, 1.25, (0, 0, 224), 2, cv.FILLED, False)
     return frame
 
 def getClientCount():
@@ -183,9 +195,22 @@ def readLock(id):
 def setStandby(id):
     cv.imwrite('data/stream_frames/{}/frame.jpg'.format(id), STANDBY_FRAME)
 
+def addToWhiteList(ip):
+    if not isWhitelisted(ip):
+        with open('data/whitelist.txt', 'a') as list:
+            list.write('{}\n'.format(ip))
+
 def addToBlackList(ip):
-    with open('data/blacklist.txt', 'a') as list:
-        list.write(ip)
+    if not isBlacklisted(ip):
+        with open('data/blacklist.txt', 'a') as list:
+            list.write('{}\n'.format(ip))
+
+def isWhitelisted(ip):
+    with open('data/whitelist.txt', 'r') as list:
+        if list.readline().strip('\n') == ip:
+            return True # This IP is whitelisted
+
+    return False # IP was not found in whitelist
 
 def isBlacklisted(ip):
     with open('data/blacklist.txt', 'r') as list:

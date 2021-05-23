@@ -4,14 +4,15 @@
 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles.css') }}">
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 </head>
-<body style="padding-bottom: 50px;">
-  <div class="container">
+<body>
+  <div id="main_container" class="container no-padding-margin">
+    <p id="logo"><a><img src="{{ url_for('static', filename='cl-icon.png')}}" /></a></p>
       <h1 class="center">Security System</h1>
           {% if clients == 0 %}
-            <h4 class="off center">No cameras are connected</h4>
+            <h3 class="off center">No cameras are connected</h3>
           {% else %}
-          <p class="center">Click on a stream for a better (scalable) view</p>
-            <div id="all_streams" class="container">
+            <p class="center">Cameras connected: {{ clients }}</p>
+            <div id="all_streams" >
           {% endif %}
 
 
@@ -39,24 +40,28 @@
         </div>
       {% endif%}
 
-      <form action="/" id="toggle_form" class="container center" method="post">
-        <h1 class="float-left">Alarm: <span class="{{ status }}" id="status">{{ status }}</span>
-          <span onclick="this.closest('form').submit(); return false;"
-        {% if status == 'on' %}
-          class="white off-bg simple-border clickable">Turn off
-        {% else %}
-          class="white on-bg simple-border clickable">Turn on</span><h1>
-        {% endif %}
-          </span><h1>
-
-      </form>
-    <h5 class="center"><a href="https://youtube.com/playlist?list=PLuyEsesANHiCgLVhmMLaF6ILTcf2qrkdk">View Recordings</a></h5>
+      <div id="extras_container">
+        <div>
+          <form action="/" id="toggle_form" class="container center" method="post">
+            <label for="toggle">Alarm: <span class="{{ status }}" id="status">{{ status }}</span></label><br />
+            <input type="submit" name="toggle" value="Toggle" class="clickable button rounded" />
+          </form>
+        </div>
+        <div>
+          <h5 class="center"><a href="https://youtube.com/playlist?list=PLuyEsesANHiCgLVhmMLaF6ILTcf2qrkdk">View Recordings</a></h5>
+        </div>
+      </div>
   </div>
+  <footer>
+    <p>
+      <div><p>Created by <a href="http://christianlisle.com" target="_blank">Christian Lisle</a></p></div>
+      <div><p><a href="http://github.com/ChristianLisle/Security-System" target="_blank">GitHub Repository</a></p></div>
+
+  </footer>
 <script>
   /*Prevent form submission if user refreshes window*/
   if ( window.history.replaceState ) {
     window.history.replaceState( null, null, window.location.href );
   }
 </script>
-
 </body>

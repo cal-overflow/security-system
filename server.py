@@ -148,14 +148,14 @@ def main():
     print('{} [SERVER]: Listening for (client) sockets'.format(helper.TIMESTAMP))
 
     while True:
-        # Accept connection
+        # Accept client connection
         client, address = server.accept()
         client.settimeout(5.0)
 
         if helper.isBlacklisted(address[0]) or helper.getClientCount() == helper.MAX_CLIENTS:
             # Close connection since they are blacklisted or
             # there are already the max number of clients connected.
-            print('Blacklisted IP', address[0], 'attempted to connect')
+            print('{} [SERVER]: Blacklisted IP {} attempted to connect'.format(helper.TIMESTAMP, address[0]))
             client.close()
             continue # Wait for next client
 
@@ -164,11 +164,15 @@ def main():
         try:
             confirmation = client.recv(1024).decode() # Client should be sending confirmation
         except (socket.timeout, UnicodeDecodeError):
-            # Client did not send decodable confirmation in time. Disconnect them.
-            helper.addToBlackList(address[0])
-            print('IP', address[0], ' has been blacklisted for failing to confirm connection')
-            client.close()
-            continue # Wait for next client
+            # Client did not send decodable confirmation in time. Add them to the blacklist if they are unrecognized.
+            if not helper.isWhitelisted(address[0]):
+                helper.addToBlackList(address[0])
+                print('{} [SERVER]: IP {} has been blacklisted for failing to confirm the connection'.format(helper.TIMESTAMP, address[0]))
+                client.close()
+                continue # Wait for next client
+
+        # Whitelist client IP, since they connected successfully.
+        helper.addToWhiteList(address[0])
 
         # Begin a process for this client's video stream
         helper.updateClientCount(helper.getClientCount() + 1)

@@ -7,7 +7,6 @@ import systemhelper as helper
 
 # Server address and port
 HOST = '127.0.0.1' # Replace with the server address/url
-#HOST = '18.222.112.110'
 PORT = 8080
 
 def main():
@@ -38,18 +37,17 @@ def main():
                 }
         pickled_data = pickle.dumps(data)
 
-        #pickled_data = pickle.dumps(frame) # TODO: delete
-        #server.sendall(helper.struct.pack("P", len(pickled_data))+pickled_data) # TODO: delete
         try:
             server.sendall(helper.struct.pack("P", len(pickled_data))+pickled_data)
-        # Handle connection issues
+
         except socket.error:
+            # Handle connection issues
             print('{} [CLIENT]: Connection to server disrupted'.format(helper.TIMESTAMP))
             connected = False
             server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
-            # Try to reconnect
             while not connected:
+                # Try to reconnect
                 try:
                     server.connect((HOST, PORT))
                     confirmRelationship(server)
@@ -62,11 +60,10 @@ def main():
                     connected = False
                     connection_failed = True
                     camera.release()
-                    time.sleep(2.5) # Wait 5 seconds before trying to reconnect
+                    time.sleep(2.5) # Wait before trying to reconnect
                     print('{} [CLIENT]: Attempting to re-establish connection with server'.format(helper.TIMESTAMP))
                     camera.open(0)
 
-        #cv.imshow('frame', frame1) # TODO: delete
         frame1 = frame2
         ret, frame2 = camera.read()
         cv.waitKey(1)
@@ -80,5 +77,4 @@ if __name__ == '__main__':
     try:
         main()
     except Exception as e:
-        cv.destroyAllWindows() # TODO: delete
         print('{}[CLIENT]: Exiting Script because of error. Cause: {}'.format(helper.TIMESTAMP, e))
