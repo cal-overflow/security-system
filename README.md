@@ -24,9 +24,23 @@ The Socket Server and Web Server must run on the same machine, whereas the clien
 ### 1) Clone the repository
 
 ### 2) Build the environment
-  Run the bash script `sh build.sh` to automate the build process. This script will build all necessary data storage directories/files and then ensure that Python is up to date. If Python is up-to-date, the script will attempt to install all required modules (through Pip).
+  Run the bash script `bash build.sh` to automate the build process. This script will build all necessary data storage directories/files and then ensure that Python is up to date. If Python is up-to-date, the script will attempt to install all required modules (through Pip).
 
   If you see `BUILD SUCCESS` after running the script, skip to step **5**. Otherwise, read the `BUILD FAILURE` message provided by the script and follow the steps mentioned.
+
+  If you are unable to run the bash script, continue following this documentation to properly build your environment.
+
+  **a)** Create a .env file with default values:
+
+    echo "MAX_CLIENTS=5" >> .env && echo "GMAIL_USER=" >> .env && echo "GMAIL_APP_PASSWORD=" >> .env
+
+  **b)** Create the necessary storage directories and files:
+
+    mkdir data && mkdir data/recordings data/stream_frames && touch data/whitelist.txt data/blacklist.txt && echo "0" > data/clients.txt && echo "on" > data/alarm_status.txt
+
+  **c)** Create subfolders for the client frames:
+
+    mkdir data/stream_frames/1 data/stream_frames/2 data/stream_frames/3 data/stream_frames/4 data/stream_frames/5
 
 ### 3) Manually install Python 3.8.5 (or later) and Pip
   Visit [Python's official website](https://www.python.org/) > Downloads > Python 3.8.5 or later > follow the instructions specific to your operating system.
