@@ -26,7 +26,7 @@ The Socket Server and Web Server must run on the same machine, whereas the clien
 ### 2) Build the environment
   Run the bash script `bash build.sh` to automate the build process. This script will build all necessary data storage directories/files and then ensure that Python is up to date. If Python is up-to-date, the script will attempt to install all required modules (through Pip).
 
-  If you see `BUILD SUCCESS` after running the script, skip to step **5**. Otherwise, read the `BUILD FAILURE` message provided by the script and follow the steps mentioned.
+  If you see `BUILD SUCCESS` after running the script, skip to [**step 5**](#5-start-the-program). Otherwise, read the `BUILD FAILURE` message provided by the script and follow the steps mentioned.
 
   If you are unable to run the bash script, continue following this documentation to properly build your environment.
 
