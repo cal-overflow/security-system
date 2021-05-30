@@ -9,17 +9,25 @@
     <p id="logo"><a><img src="{{ url_for('static', filename='cl-icon.png')}}" /></a></p>
       <h1 class="center">Security System</h1>
       <h2 class="center">Recordings</h2>
-      <ul>
         {% if list.size == 0 %}
           <h3>No recordings</h3>
-          <p>Future recordings will be found here<br /><a href="{{ url_for('index') }}" title="Back to security feed">Back to security feed.</a></p>
+          <p>Future recordings will be found here<br /></p>
         {% else %}
+        <div id="recordings_container" class="center">
           {% for item in list.children recursive %}
-            <li><a href="static/recordings/{{ item.name }}">{{ item.name }}</a></li>
+            <HR>
+            <h2>{{ item.name.replace('-', '/') }}</h2>
+            {%- if item.children -%}
+              <ul class="no-padding-margin">
+                {% for subItem in item.children recursive %}
+                  <li class="recording_item"><a href="{{subItem.name}}">{{ subItem.name[29:].replace('_', ':').replace('.mp4', '').replace('CAM', ' - Camera ') }}</a></li>
+                {% endfor %}
+              </ul>
+            {% endif %}
           {% endfor %}
+        </div>
         {% endif %}
-
-      </ul>
+        <p class="ml-5"><a href="{{ url_for('index') }}" title="Back to security feed">Back to security feed</a></p>
   </div>
   <footer>
     <p>

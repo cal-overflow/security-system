@@ -19,6 +19,7 @@ a:hover { text-decoration: none; }
 .float-right { float: right; }
 .rounded { border-radius: 5px; }
 .button { background-color: #e0e0e0;}
+.ml-5 { margin-left: 5%; }
 
 /*#all_streams, .stream_container, .stream_container_odd {  }*/
 
@@ -64,6 +65,11 @@ a:hover { text-decoration: none; }
   max-height: 100%;
   margin: 0 auto;
   border-radius: 3px;
+}
+
+.recording_item {
+  list-style: none;
+  line-height: 1.5em;
 }
 
 footer  {

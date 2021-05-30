@@ -42,9 +42,9 @@ def list_files(path):
         for name in lst:
             fn = os.path.join(path, name)
             if os.path.isdir(fn):
-                list['children'].append(make_list(fn))
+                list['children'].append(list_files(fn))
             else:
-                list['children'].append(dict(name=name))
+                list['children'].append(dict(name=fn))
             list['size'] += 1
     return list
 

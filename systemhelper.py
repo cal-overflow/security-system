@@ -2,7 +2,8 @@
 import cv2 as cv
 import smtplib
 import struct
-import datetime, time, math
+from pathlib import Path
+import os, datetime, time, math
 from decouple import config as ENV
 
 ###############################################
@@ -22,7 +23,6 @@ TIMESTAMP = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 def record(frames, already_recording, id):
     '''Record video when motion is detected. Includes the few seconds prior to motion detection and few seconds after the motion stops.'''
-    print('in recording helper function')
     FPS = frames[0]['FPS']
     WIDTH = frames[0]['WIDTH']
     HEIGHT = frames[0]['HEIGHT']
@@ -42,12 +42,14 @@ def record(frames, already_recording, id):
         #stop the recording. Write to a video file
         print('writing recording to file')
 
-        fourcc = cv.VideoWriter_fourcc(*'XVID')
-        output_file = 'static/recordings/{}_CAM{}.avi'.format(datetime.datetime.now().strftime("%m-%d-%Y-%H:%M:%S"), id)
+        # Create an output file and directory if it does not already exist. (Each day has a directory with its recordings).
+        fourcc = cv.VideoWriter_fourcc(*'FMP4')
+        output_file = "static/recordings/{}CAM{}.mp4".format(datetime.datetime.now().strftime("%m-%d-%Y/%H_%M_%S"), id)
+        os.makedirs(os.path.dirname(output_file), exist_ok=True)
+        open(output_file, 'a+').close()
         output = cv.VideoWriter(output_file, fourcc, FPS, (WIDTH, HEIGHT), True)
 
         for frame in frames:
-            # Write each frame to the output file.
             output.write(drawRecording(frame['FRAME'], WIDTH, HEIGHT))
 
         output.release() # Completed writing to output file
@@ -55,12 +57,13 @@ def record(frames, already_recording, id):
     return movement_lately, output_file
 
 def alert(id):
+    
     '''Notify (via email) that motion has been detected.'''
     gmail_user = ENV('GMAIL_USER')
     gmail_password = ENV('GMAIL_APP_PASSWORD')
 
     sent_from = gmail_user
-    to = ['', ''] # Email recipients here
+    to = [] # Email recipients here
     subject = 'ALERT - Security System'
     body = 'ALERT: Movement has been detected by the security system on {} by camera {}'.format(datetime.datetime.now().strftime("%d/%m/%Y at %H:%M:%S"), id)
 

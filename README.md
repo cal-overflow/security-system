@@ -17,7 +17,8 @@ The Socket Server and Web Server must run on the same machine, whereas the clien
 
  1. [Python 3.8.5](https://www.python.org/downloads/release/python-385/) or later
  2. [Pip](https://pypi.org/project/pip/) (package installer for Python)
- 3. [GNU Screen](https://www.gnu.org/software/screen/) (only required for server side)
+ 3. [FFMPEG](https://www.ffmpeg.org/) (only required for server side)
+ 4. [GNU Screen](https://www.gnu.org/software/screen/) (only required for server side)
 
 ## Deploying the system:
 
