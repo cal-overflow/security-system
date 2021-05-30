@@ -1,8 +1,9 @@
 from multiprocessing import Process as process
+import subprocess
 import cv2 as cv
 import socket
 import pickle
-import datetime, time
+import datetime, time, sys
 import systemhelper as helper
 
 HOST = '0.0.0.0'
@@ -86,7 +87,6 @@ def stream_camera(client, address, id):
             writeToFile(id, processed_frame)
         alternator = not alternator
 
-        #cv.imshow('Client: {} ({})'.format(id, address[0]), processed_frame) # TODO: delete this. dev purposes only
         cv.waitKey(10)
 
 def processFrame(data, address, id, recording, FRAMES):
@@ -96,20 +96,17 @@ def processFrame(data, address, id, recording, FRAMES):
     # Ignore if this is the first frame sent from client
     if (data['MOTION'] and len(FRAMES[address[1]]) != 1) or recording:
         if (helper.getStatus() == 'on') and not recording:
-            # Alert status is 'on' and recording just began. Send ALERT
-            helper.alert(id)
+            helper.alert(id) # Alert when motion (recording) first starts and alerts are enabled
 
-        # TODO: UNCOMMENT!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!! # TODO!!!!
-        #recording, output_file = helper.record(FRAMES[address[1]], recording, id)
+        recording, output_file = helper.record(FRAMES[address[1]], recording, id)
         processed_frame = helper.drawRecording(data['FRAME'], data['WIDTH'], data['HEIGHT'])
 
-        recording = False # TODO: DELETE!!!!!!!!!!!!!!!! # TODO!!!!!!
+
         if not recording:
             # No longer recording. Throw away all but last few FRAMES
             temp_frames = FRAMES[address[1]]
             temp_frames = temp_frames[(len(temp_frames) - (data['FPS'] * helper.SECONDS)):]
-            #print('{} [SERVER]: Video recording saved to {}'.format(helper.TIMESTAMP, output_file)) # TODO: uncomment
-
+            print('{} [SERVER]: Video recording saved to {}'.format(helper.TIMESTAMP, output_file))
         else:
             temp_frames = None
     else:

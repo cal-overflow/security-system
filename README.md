@@ -36,7 +36,7 @@ The Socket Server and Web Server must run on the same machine, whereas the clien
 
   **b)** Create the necessary storage directories and files:
 
-    mkdir data && mkdir data/recordings data/stream_frames && touch data/whitelist.txt data/blacklist.txt && echo "0" > data/clients.txt && echo "on" > data/alarm_status.txt
+    mkdir static/recordings && mkdir data && data/stream_frames && touch data/whitelist.txt data/blacklist.txt && echo "0" > data/clients.txt && echo "on" > data/alarm_status.txt
 
   **c)** Create subfolders for the client frames:
 

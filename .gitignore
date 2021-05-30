@@ -4,6 +4,7 @@ __pycache__
 data/
 credentials.txt
 .env
+static/recordings/
 
 # Files used for miscellaneous scripting development
 misc.py

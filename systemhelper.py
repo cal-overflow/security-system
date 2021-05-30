@@ -22,6 +22,7 @@ TIMESTAMP = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
 
 def record(frames, already_recording, id):
     '''Record video when motion is detected. Includes the few seconds prior to motion detection and few seconds after the motion stops.'''
+    print('in recording helper function')
     FPS = frames[0]['FPS']
     WIDTH = frames[0]['WIDTH']
     HEIGHT = frames[0]['HEIGHT']
@@ -42,7 +43,7 @@ def record(frames, already_recording, id):
         print('writing recording to file')
 
         fourcc = cv.VideoWriter_fourcc(*'XVID')
-        output_file = 'data/recordings/{}_CAM{}.avi'.format(datetime.datetime.now().strftime("%m-%d-%Y-%H:%M:%S"), id)
+        output_file = 'static/recordings/{}_CAM{}.avi'.format(datetime.datetime.now().strftime("%m-%d-%Y-%H:%M:%S"), id)
         output = cv.VideoWriter(output_file, fourcc, FPS, (WIDTH, HEIGHT), True)
 
         for frame in frames:
@@ -54,13 +55,12 @@ def record(frames, already_recording, id):
     return movement_lately, output_file
 
 def alert(id):
-    return # TODO: DELETE THIS
     '''Notify (via email) that motion has been detected.'''
     gmail_user = ENV('GMAIL_USER')
     gmail_password = ENV('GMAIL_APP_PASSWORD')
 
     sent_from = gmail_user
-    to = ['cl.s.system.notifications@gmail.com', 'lislechristian@gmail.com'] # Email recipients here
+    to = ['', ''] # Email recipients here
     subject = 'ALERT - Security System'
     body = 'ALERT: Movement has been detected by the security system on {} by camera {}'.format(datetime.datetime.now().strftime("%d/%m/%Y at %H:%M:%S"), id)
 

@@ -2,40 +2,61 @@ from flask import Flask, render_template, Response, request
 from multiprocessing import Process as process
 from waitress import serve
 import cv2 as cv
-import systemhelper as helper
-import datetime, time
+from systemhelper import getClientCount, toggleStatus, getStatus, lock, unlock, readLock
+import datetime, time, os
 
 HOST = '0.0.0.0'
 PORT = 8000
 app = Flask(__name__)
 PROCESSES = []
-app.config["CACHE_TYPE"] = "null" # TODO: delete
+app.config['CACHE_TYPE'] = 'null' # TODO: delete
 
 @app.route('/', methods=['GET', 'POST'])
-@app.route('/toggle_form', methods=['GET', 'POST'])
 def index():
     '''index (default) route'''
     # Handle posts
     if request.method == 'POST':
         # TODO: send an alert notifying that alerts have been turned on/off
-        render_template('index.html', clients=helper.getClientCount(), status=helper.toggleStatus())
+        render_template('index.html', clients=getClientCount(), status=toggleStatus())
 
     # Return page template
-    return render_template('index.html', clients=helper.getClientCount(), status=helper.getStatus())
+    return render_template('index.html', clients=getClientCount(), status=getStatus())
 
 @app.route('/video_feed/<id>')
 def video_feed(id):
     return Response(getClientStream(id), mimetype='multipart/x-mixed-replace; boundary=frame')
 
+@app.route('/video_recordings')
+def video_recordings():
+    path = 'static/recordings'
+    return render_template('recordings.html', list=list_files(path))
+
+def list_files(path):
+    '''List the contents of the given directory'''
+    # Extremely helpful resource: https://stackoverflow.com/a/10961991
+    list = dict(name=os.path.basename(path), children=[], size=0)
+    try: lst = os.listdir(path)
+    except OSError:
+        pass #ignore errors
+    else:
+        for name in lst:
+            fn = os.path.join(path, name)
+            if os.path.isdir(fn):
+                list['children'].append(make_list(fn))
+            else:
+                list['children'].append(dict(name=name))
+            list['size'] += 1
+    return list
+
 def getClientStream(id):
     '''Get a client stream given their id'''
     while True:
-        if helper.readLock(id) == 'unlocked':
-            helper.lock(id)
+        if readLock(id) == 'unlocked':
+            lock(id)
 
             filename = 'data/stream_frames/{}/frame.jpg'.format(id)
             img = cv.imread(filename, cv.IMREAD_UNCHANGED)
-            helper.unlock(id) # Done reading image. Unlock
+            unlock(id) # Done reading image. Unlock
 
             #possibly unnecessary encoding # TODO: see if this is necessary. might be able to just use cv.imread
             try:

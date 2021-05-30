@@ -16,7 +16,7 @@ do
     # Build the environment folders and files needed for storing data (Server side only).
     echo "[${deploy} BUILD] Constructing data storage directories, setting data values, and creating essential storage files."
 
-    directories=("data" "data/recordings" "data/stream_frames")
+    directories=("static/recordings" "data" "data/stream_frames")
 
     for directory in ${directories[@]}
     do
@@ -77,7 +77,7 @@ fi
 if [ "$valid" = true ]; then
   echo "[${deploy} BUILD] Your Python version (${pvs:7:10}) is sufficient."
 else
-  echo "[${deploy} BUILD] ${red}WARNING${reset}: Your Python version (${pvs:7:10}) is older than the recommended version, Python 3.8.5. Consider updating before running the program."
+  echo "[${deploy} BUILD] ${red}WARNING${reset}: Your Python version (${pvs:7:10}) is older than the recommended version, Python 3.8.5. Consider updating before running the program. View step 3 on the README.md for instructions on installing a recent version of Python."
 fi
 
 # Install python module dependencies.
@@ -117,7 +117,7 @@ echo "[${deploy} BUILD] Installing Python modules using pip. ${WARNING}"
     python3 -m pip install waitress
   fi
 } || {
-  echo "${red}[BUILD FAILURE]${reset} Could not install Python modules using pip. View step 3 on README.md for more information on installing Pip or view step 4 on README.md to manually install the required Python packages."
+  echo "${red}[BUILD FAILURE]${reset} Could not install Python modules using pip. View step 3 on README.md for more information on installing both Python and Pip or step 4 on README.md to manually install the required Python packages."
   exit
 }
-echo "${green}[BUILD SUCCESS]${reset} Your environment appears to be sufficient for this program. View step 4 on README.md for information on how to run the program."
+echo "${green}[BUILD SUCCESS]${reset} Your environment appears to be sufficient for this program. View steps 5 and 6 on README.md for information on how to run the program."
