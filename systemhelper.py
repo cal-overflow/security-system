@@ -14,8 +14,9 @@ THRESHOLD = 10000 # Movement detection threshold
 STANDBY_FRAME = cv.imread('static/standby.jpg', cv.IMREAD_UNCHANGED)
 PACKAGE_SIZE = struct.calcsize("P")
 MAX_CLIENTS = int(ENV('MAX_CLIENTS'))
-SECONDS = 10
+SECONDS = int(ENV('SECONDS'))
 TIMESTAMP = datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+RECORDING_TYPE = ENV('RECORDING_TYPE')
 
 ###############################################
 # HELPER FUNCTIONS
@@ -42,9 +43,16 @@ def record(frames, already_recording, id):
         #stop the recording. Write to a video file
         print('writing recording to file')
 
-        # Create an output file and directory if it does not already exist. (Each day has a directory with its recordings).
-        fourcc = cv.VideoWriter_fourcc(*'FMP4')
-        output_file = "static/recordings/{}CAM{}.mp4".format(datetime.datetime.now().strftime("%m-%d-%Y/%H_%M_%S"), id)
+        # Ensure that user has the correct video type
+        if RECORDING_TYPE == 'mp4':
+            fourcc = cv.VideoWriter_fourcc(*'FMP4')
+        elif RECORDING_TYPE == 'avi':
+            fourcc = cv.VideoWriter_fourcc(*'XVID')
+        else:
+            print('{} [SERVER]: Can not record video of type: {}\nChange the RECORDING_TYPE to one of the acceptable video types (listed under step 2a on README) in your .env and restart the server to enable video recordings to be saved'.format(TIMESTAMP, RECORDING_TYPE))
+            return False, None
+
+        output_file = "static/recordings/{}CAM{}.{}".format(datetime.datetime.now().strftime("%m-%d-%Y/%H_%M_%S"), id, RECORDING_TYPE)
         os.makedirs(os.path.dirname(output_file), exist_ok=True)
         open(output_file, 'a+').close()
         output = cv.VideoWriter(output_file, fourcc, FPS, (WIDTH, HEIGHT), True)
@@ -57,7 +65,6 @@ def record(frames, already_recording, id):
     return movement_lately, output_file
 
 def alert(id):
-    
     '''Notify (via email) that motion has been detected.'''
     gmail_user = ENV('GMAIL_USER')
     gmail_password = ENV('GMAIL_APP_PASSWORD')

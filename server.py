@@ -1,5 +1,4 @@
 from multiprocessing import Process as process
-import subprocess
 import cv2 as cv
 import socket
 import pickle
@@ -106,7 +105,8 @@ def processFrame(data, address, id, recording, FRAMES):
             # No longer recording. Throw away all but last few FRAMES
             temp_frames = FRAMES[address[1]]
             temp_frames = temp_frames[(len(temp_frames) - (data['FPS'] * helper.SECONDS)):]
-            print('{} [SERVER]: Video recording saved to {}'.format(helper.TIMESTAMP, output_file))
+            if output_file is not None:
+                print('{} [SERVER]: Video recording saved to {}'.format(helper.TIMESTAMP, output_file))
         else:
             temp_frames = None
     else:

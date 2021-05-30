@@ -17,6 +17,7 @@ a:hover { text-decoration: none; }
 .half-width { width: 50%; }
 .float-left { float: left; }
 .float-right { float: right; }
+.clear-both { clear: both; }
 .rounded { border-radius: 5px; }
 .button { background-color: #e0e0e0;}
 .ml-5 { margin-left: 5%; }
@@ -72,6 +73,11 @@ a:hover { text-decoration: none; }
   line-height: 1.5em;
 }
 
+.title, .title a, .title a:link  {
+  color: #00addd;
+  text-decoration: none;
+}
+
 footer  {
   padding-top: 10px;
   background-color: #14171c;
@@ -114,6 +120,10 @@ footer  {
     margin: 0 auto;
   }
   #extras_container div, footer div  {
+    width: 50%;
+    float: left;
+  }
+  .recording_item {
     width: 50%;
     float: left;
   }

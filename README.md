@@ -18,7 +18,7 @@ The Socket Server and Web Server must run on the same machine, whereas the clien
  1. [Python 3.8.5](https://www.python.org/downloads/release/python-385/) or later
  2. [Pip](https://pypi.org/project/pip/) (package installer for Python)
  3. [FFMPEG](https://www.ffmpeg.org/) (only required for server side)
- 4. [GNU Screen](https://www.gnu.org/software/screen/) (only required for server side)
+ 4. Optional: [GNU Screen](https://www.gnu.org/software/screen/) (helpful for server side)
 
 ## Deploying the system:
 
@@ -27,17 +27,24 @@ The Socket Server and Web Server must run on the same machine, whereas the clien
 ### 2) Build the environment
   Run the bash script `bash build.sh` to automate the build process. This script will build all necessary data storage directories/files and then ensure that Python is up to date. If Python is up-to-date, the script will attempt to install all required modules (through Pip).
 
-  If you see `BUILD SUCCESS` after running the script, skip to [**step 5**](#5-start-the-program). Otherwise, read the `BUILD FAILURE` message provided by the script and follow the steps mentioned.
+  If you see `BUILD SUCCESS` after running the script, skip to [**step 5**](#5-install-ffmpeg). Otherwise, read the `BUILD FAILURE` message provided by the script and follow the steps mentioned.
 
   If you are unable to run the bash script, continue following this documentation to properly build your environment.
 
   **a)** Create a .env file with default values:
 
-    echo "MAX_CLIENTS=5" >> .env && echo "GMAIL_USER=" >> .env && echo "GMAIL_APP_PASSWORD=" >> .env
+    echo "MAX_CLIENTS=5" >> .env && echo "SECONDS=30" >> .env && echo "RECORDING_TYPE=mp4" >> .env && echo "GMAIL_USER=" >> .env && echo "GMAIL_APP_PASSWORD=" >> .env
+
+  The default values are:
+  - **MAX_CLIENTS:** The maximum number of clients that can connect to the server at one time
+  - **SECONDS:** The number of seconds that are recorded before and after motion is detected
+  - **RECORDING_TYPE:** The type of video recordings that are produced by the server. `mp4` and `avi` are the only acceptable options.
+  - **GMAIL_USER:** (email address that you can connect for alerts)
+  - **nGMAIL_APP_PASSWORD:** unset (app-specific password generated for secure access for this app only. More information [here](https://support.google.com/accounts/answer/185833?hl=en))
 
   **b)** Create the necessary storage directories and files:
 
-    mkdir static/recordings && mkdir data && data/stream_frames && touch data/whitelist.txt data/blacklist.txt && echo "0" > data/clients.txt && echo "on" > data/alarm_status.txt
+    mkdir static/recordings && mkdir data && mkdir data/stream_frames && touch data/whitelist.txt data/blacklist.txt && echo "0" > data/clients.txt && echo "on" > data/alarm_status.txt
 
   **c)** Create subfolders for the client frames:
 
@@ -73,8 +80,11 @@ The Socket Server and Web Server must run on the same machine, whereas the clien
   - pickle
   - decouple
 
+### 5) Install FFMPEG
 
-### 5) Start the program
+  FFMPEG is a video and audio processing tool that is essential for the recording of videos with this security system. You can install FFMPEG via the [official website](https://www.ffmpeg.org/). [Here](https://www.wikihow.com/Install-FFmpeg-on-Windows) is a helpful guide for installing it on Windows operating Systems.
+
+### 6) Start the program
 
 #### Server:
 
@@ -89,7 +99,7 @@ The Socket Server and Web Server must run on the same machine, whereas the clien
   Before you can deploy a client, you must change the `HOST` address found in the `client.py` script to match the URL of the machine running the Server. You can then run the client script `python3 client.py` and wait for the client to connect.
 
 
-### 6) View the website:
+### 7) View the website:
   By default, the flask (web) server runs on port `8000`. You can view the website by visiting `http://serverIP:8000` on your browser, where `serverIP` is the local IP address of the machine acting as the Server.
 
   If you are trying to view the server from an outside network, then you will have to use the public IP address of the server, and might have to deal with some advanced networking. If that is the case, you may want to consider [port forwarding](https://en.wikipedia.org/wiki/Port_forwarding) and learning about [static vs. dynamic IP addresses](https://support.google.com/fiber/answer/3547208?hl=en).

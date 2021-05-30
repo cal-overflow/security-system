@@ -7,7 +7,7 @@
 <body>
   <div id="main_container" class="container no-padding-margin">
     <p id="logo"><a><img src="{{ url_for('static', filename='cl-icon.png')}}" /></a></p>
-      <h1 class="center">Security System</h1>
+      <h1 class="center title"><a href="{{ url_for('index')}}">Security System</a></h1>
           {% if clients == 0 %}
             <h3 class="off center">No cameras are connected</h3>
           {% else %}

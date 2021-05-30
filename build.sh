@@ -32,8 +32,10 @@ do
       max=$(grep MAX_CLIENTS .env | cut -d '=' -f2)
     else
       max=5
-      echo "[${deploy} BUILD] .env file not found.\n[${deploy} BUILD] Construcing new .env file with a default MAX_CLIENTS of 5."
-      echo "MAX_CLIENTS=${max}\nGMAIL_USER=\nGMAIL_APP_PASSWORD=" > .env
+      seconds=30
+      recording="mp4"
+      echo "[${deploy} BUILD] .env file not found.\n[${deploy} BUILD] Construcing new .env file with the following default values:\nMAX_CLIENTS=${max}\nRECORDING_TYPE=${recording}\nSECONDS=${seconds}\nGMAIL_USER=${red}unset${reset}\nGMAIL_APP_PASSWORD=${red}unset${reset}"
+      echo "MAX_CLIENTS=${max}\nRECORDING_TYPE=${recording}\nSECONDS=${seconds}\nGMAIL_USER=\nGMAIL_APP_PASSWORD=" > .env
     fi
 
     for i in `seq 1 $max`
@@ -120,4 +122,4 @@ echo "[${deploy} BUILD] Installing Python modules using pip. ${WARNING}"
   echo "${red}[BUILD FAILURE]${reset} Could not install Python modules using pip. View step 3 on README.md for more information on installing both Python and Pip or step 4 on README.md to manually install the required Python packages."
   exit
 }
-echo "${green}[BUILD SUCCESS]${reset} Your environment appears to be sufficient for this program. View steps 5 and 6 on README.md for information on how to run the program."
+echo "${green}[BUILD SUCCESS]${reset} Your environment appears to be sufficient for this program. View steps 5 and 6 on README.md for information on installing FFMPEG and how to run the program."
