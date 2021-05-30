@@ -74,7 +74,7 @@ elif [[ $((${version[0]} + 0)) -gt 3 ]]; then
   valid=true
 fi
 
-if [ valid ]; then
+if [ "$valid" = true ]; then
   echo "[${deploy} BUILD] Your Python version (${pvs:7:10}) is sufficient."
 else
   echo "[${deploy} BUILD] ${red}WARNING${reset}: Your Python version (${pvs:7:10}) is older than the recommended version, Python 3.8.5. Consider updating before running the program."
