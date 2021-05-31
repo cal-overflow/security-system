@@ -15,6 +15,8 @@ a:hover { text-decoration: none; }
 .off-bg  { background-color: red; }
 .simple-border {  border: 1px black solid; padding: 4px; border-radius: 4px; }
 .center { text-align: center; }
+.align-left { text-align: left; }
+.align-right { text-align: right; }
 .stream_frame {cursor: zoom-in; }
 .half-width { width: 50%; }
 .float-left { float: left; }
@@ -24,6 +26,8 @@ a:hover { text-decoration: none; }
 .button { background-color: #e0e0e0;}
 .ml-5 { margin-left: 5%; }
 .mr-5 { margin-right: 5%; }
+.ml-10 { margin-left: 10%; }
+.mr-10 { margin-right: 10%; }
 .no-decoration { text-decoration: none; }
 
 

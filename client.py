@@ -3,11 +3,12 @@ import socket
 import pickle
 import time
 import datetime
-from systemhelper import struct, TIMESTAMP, THRESHOLD, drawTime
+from systemhelper import struct, timestamp, drawTime
 
 # Server address and port
 HOST = '127.0.0.1' # Replace with the server address/url
 PORT = 8080
+THRESHOLD = 7500 # Movement detection threshold
 
 def main():
     '''Client that connects and streams video to server.'''
@@ -16,12 +17,12 @@ def main():
     server.connect((HOST, PORT))
 
     confirmRelationship(server)
-    print('{} [CLIENT]: Established connection with server'.format(TIMESTAMP))
+    print('{} [CLIENT]: Established connection with server'.format(timestamp()))
 
     # Set and calibrate camera
     camera, FPS = calibrateCamera()
 
-    print('{} [CLIENT]: Beginning stream to server'.format(TIMESTAMP))
+    print('{} [CLIENT]: Beginning stream to server'.format(timestamp()))
     ret, frame1 = camera.read()
     ret, frame2 = camera.read()
     connection_failed = False
@@ -42,7 +43,7 @@ def main():
 
         except socket.error:
             # Handle connection issues
-            print('{} [CLIENT]: Connection to server disrupted'.format(TIMESTAMP))
+            print('{} [CLIENT]: Connection to server disrupted'.format(timestamp()))
             connected = False
             server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
@@ -54,14 +55,14 @@ def main():
                     connected = True
                     if connection_failed:
                         # Connection was re-established after it recently failed
-                        print('{} [CLIENT]: Re-established connection with server'.format(TIMESTAMP))
+                        print('{} [CLIENT]: Re-established connection with server'.format(timestamp()))
                         connection_failed = False
                 except socket.error:
                     connected = False
                     connection_failed = True
                     camera.release()
                     time.sleep(2.5) # Wait before trying to reconnect
-                    print('{} [CLIENT]: Attempting to re-establish connection with server'.format(TIMESTAMP))
+                    print('{} [CLIENT]: Attempting to re-establish connection with server'.format(timestamp()))
                     camera.open(0)
 
         frame1 = frame2
@@ -75,7 +76,7 @@ def confirmRelationship(server):
 
 def calibrateCamera():
     '''Calibrate the camera. Get the true FPS (including processing) from the camera'''
-    print('{} [CLIENT]: Calibrating camera'.format(TIMESTAMP))
+    print('{} [CLIENT]: Calibrating camera'.format(timestamp()))
     camera = cv.VideoCapture(0)
     width = camera.get(cv.CAP_PROP_FRAME_WIDTH)
     height = camera.get(cv.CAP_PROP_FRAME_HEIGHT)
@@ -93,7 +94,7 @@ def calibrateCamera():
         # Attempt to open capture device once more, after a failure
         camera.open()
         if not camera.isOpened():
-            print('{} [CLIENT]: Issue opening camera'.format(TIMESTAMP))
+            print('{} [CLIENT]: Issue opening camera'.format(timestamp()))
             exit()
 
     start_time = time.time()
@@ -132,4 +133,4 @@ if __name__ == '__main__':
     try:
         main()
     except Exception as e:
-        print('{}[CLIENT]: Exiting Script because of error. Cause: {}'.format(TIMESTAMP, e))
+        print('{}[CLIENT]: Exiting Script because of error. Cause: {}'.format(timestamp(), e))
