@@ -10,11 +10,6 @@ do
   read -p "[PROMPT] Enter \"client\" or \"server\": " choice
   if [ $choice == "client" ] || [ $choice == "Client" ]; then
     deploy="CLIENT"
-    echo "MAX_CLIENTS=5" > .env
-    echo "RECORDING_TYPE=mp4" >> .env
-    echo "SECONDS=30" >> .env
-    echo "GMAIL_USER=" >> .env
-    echo "GMAIL_APP_PASSWORD=" >> .env
     break
   elif [ $choice == "server" ] || [ $choice == "Server" ]; then
     deploy="SERVER"
@@ -34,7 +29,7 @@ do
     done
 
     echo "[PROMPT] Setting environment variables."
-    echo "[PROMPT] Enter nothing if you would like to use the default value."
+    echo "[PROMPT] ${green}Enter nothing if you would like to use the default value.${reset}"
     while true;
     do
       read -p "[PROMPT] Enter the maximum number of clients that can connect at once: " max
@@ -81,10 +76,10 @@ do
     echo "SECONDS=${seconds}"
     echo "SECONDS=${seconds}" >> .env
 
-    echo "GMAIL_USER=${red}unset${reset}"
+    echo "GMAIL_USER= ${red}NOT SET${reset}"
     echo "GMAIL_USER=" >> .env
 
-    echo "GMAIL_APP_PASSWORD=${red}unset${reset}"
+    echo "GMAIL_APP_PASSWORD= ${red}NOT SET${reset}"
     echo "GMAIL_APP_PASSWORD=" >> .env
   fi
 
