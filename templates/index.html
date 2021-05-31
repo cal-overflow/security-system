@@ -8,6 +8,7 @@
   <div id="main_container" class="container no-padding-margin">
     <p id="logo"><a><img src="{{ url_for('static', filename='cl-icon.png')}}" /></a></p>
       <h1 class="center title"><a href="{{ url_for('index')}}">Security System</a></h1>
+      <HR>
           {% if clients == 0 %}
             <h3 class="off center">No cameras are connected</h3>
           {% else %}
@@ -53,10 +54,8 @@
       </div>
   </div>
   <footer>
-    <p>
-      <div><p>Created by <a href="http://christianlisle.com" target="_blank">Christian Lisle</a></p></div>
-      <div><p><a href="http://github.com/ChristianLisle/Security-System" target="_blank">GitHub Repository</a></p></div>
-
+      <div><p>Created by <a href="http://christianlisle.com" target="_blank" title="Learn about Christian">Christian Lisle</a></p></div>
+      <div><p><a href="http://github.com/ChristianLisle/Security-System" target="_blank" title="View this project's source code">GitHub Repository</a></p></div>
   </footer>
 <script>
   /*Prevent form submission if user refreshes window*/

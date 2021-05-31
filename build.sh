@@ -13,7 +13,9 @@ do
     break
   elif [ $choice == "server" ] || [ $choice == "Server" ]; then
     deploy="SERVER"
+
     # Build the environment folders and files needed for storing data (Server side only).
+    echo ""
     echo "[${deploy} BUILD] Constructing data storage directories, setting data values, and creating essential storage files."
 
     directories=("static/recordings" "data" "data/stream_frames")
@@ -27,15 +29,60 @@ do
       fi
     done
 
-    ENV_FILE=.env
-    if test -f "$ENV_FILE"; then
-      max=$(grep MAX_CLIENTS .env | cut -d '=' -f2)
-    else
-      max=5
-      seconds=30
-      recording="mp4"
-      echo "[${deploy} BUILD] .env file not found.\n[${deploy} BUILD] Construcing new .env file with the following default values:\nMAX_CLIENTS=${max}\nRECORDING_TYPE=${recording}\nSECONDS=${seconds}\nGMAIL_USER=${red}unset${reset}\nGMAIL_APP_PASSWORD=${red}unset${reset}"
-      echo "MAX_CLIENTS=${max}\nRECORDING_TYPE=${recording}\nSECONDS=${seconds}\nGMAIL_USER=\nGMAIL_APP_PASSWORD=" > .env
+    echo "[PROMPT] Setting environment variables."
+    echo "[PROMPT] Type \"default\" if you would like to use the default value."
+    while true;
+    do
+      read -p "[PROMPT] Enter the maximum number of clients that can connect at once: " max
+      if [[ $max =~ ^[+-]?[0-9]+$ ]]; then
+        break
+      elif [[ $max == "default" ]] || [[ $max == "Default" ]]; then
+        max=5
+        break
+      fi
+    done
+    echo ""
+    while true;
+    do
+      read -p "[PROMPT] Enter the number of seconds that will be recorded before and after movement is detected: " seconds
+      if [[ $seconds =~ ^[+-]?[0-9]+$ ]]; then
+        break
+      elif [[ $seconds == "default" ]] || [[ $seconds == "Default" ]]; then
+        seconds=30
+        break
+      fi
+    done
+    echo ""
+    echo "[PROMPT] What type of videos do you want recorded?"
+    while true;
+    do
+      read -p "[PROMPT] Enter \"mp4\" or \"avi\": " recording
+      if [ $recording == "mp4" ] || [ $recording == "avi" ]; then
+        break
+      elif [[ $recording == "default" ]] || [[ $recording == "Default" ]]; then
+        recording="mp4"
+        break
+      fi
+    done
+
+    echo ""
+    echo "[${deploy} BUILD] Constructing .env file with the following values:"
+
+    echo "MAX_CLIENTS=${max}"
+    echo "MAX_CLIENTS=${max}" > .env
+
+    echo "RECORDING_TYPE=${recording}"
+    echo "RECORDING_TYPE=${recording}" >> .env
+
+    echo "SECONDS=${seconds}"
+    echo "SECONDS=${seconds}" >> .env
+
+    echo "GMAIL_USER=${red}unset${reset}"
+    echo "GMAIL_USER=" >> .env
+
+    echo "GMAIL_APP_PASSWORD=${red}unset${reset}"
+    echo "GMAIL_APP_PASSWORD=" >> .env
+    #echo "MAX_CLIENTS=${max}\nRECORDING_TYPE=${recording}\nSECONDS=${seconds}\nGMAIL_USER=\nGMAIL_APP_PASSWORD=" > .env
     fi
 
     for i in `seq 1 $max`
@@ -51,10 +98,9 @@ do
     echo "on" > data/alarm_status.txt
     echo "0" > data/clients.txt
     break
-  fi
 done
 
-
+echo ""
 echo "[${deploy} BUILD] Checking Python version"
 {
   pvs="$(python3 --version)"

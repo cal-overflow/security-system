@@ -5,6 +5,7 @@ data/
 credentials.txt
 .env
 static/recordings/
+openh264*
 
 # Files used for miscellaneous scripting development
 misc.py

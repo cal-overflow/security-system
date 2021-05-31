@@ -1,6 +1,7 @@
 html, body, .no-padding-margin  { margin: 0 0 0 0; padding: 0 0 0 0; }
 html { background-color: #14171c; }
 body  { background-color: #f2f2f2; }
+HR  { color: #2e2e2e; }
 * { font-size: 1.125em; }
 a  { color: #e02b20; }
 a:hover { text-decoration: none; }
@@ -21,6 +22,7 @@ a:hover { text-decoration: none; }
 .rounded { border-radius: 5px; }
 .button { background-color: #e0e0e0;}
 .ml-5 { margin-left: 5%; }
+.no-decoration { text-decoration: none; }
 
 /*#all_streams, .stream_container, .stream_container_odd {  }*/
 
@@ -45,7 +47,6 @@ a:hover { text-decoration: none; }
   border-radius: 3px;
   background: #2e2e2e;
 }
-
 
 #toggle_form  {
   width: 80%;
@@ -89,12 +90,20 @@ a:hover { text-decoration: none; }
 }
 
 footer  {
+  width: 100%;
   padding-top: 10px;
   background-color: #14171c;
-  width: 100vw;
   color: #ededed;
   text-align: center;
   overflow: auto;
+}
+footer a  { color: #e02b20; }
+
+footer a:link, footer a:visited {
+  text-decoration: none;
+}
+footer a:hover  {
+  text-decoration: underline;
 }
 
 @media only screen and (orientation: portrait)  {

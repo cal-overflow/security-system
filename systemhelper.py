@@ -45,7 +45,7 @@ def record(frames, already_recording, id):
 
         # Ensure that user has a correct video type
         if RECORDING_TYPE == 'mp4':
-            fourcc = cv.VideoWriter_fourcc(*'FMP4')
+            fourcc = cv.VideoWriter_fourcc(*'mp4v')
         elif RECORDING_TYPE == 'avi':
             fourcc = cv.VideoWriter_fourcc(*'XVID')
         else:

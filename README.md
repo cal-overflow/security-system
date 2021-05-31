@@ -18,6 +18,8 @@ The Socket Server and Web Server must run on the same machine, whereas the clien
  1. [Python 3.8.5](https://www.python.org/downloads/release/python-385/) or later
  2. [Pip](https://pypi.org/project/pip/) (package installer for Python)
  3. [FFMPEG](https://www.ffmpeg.org/) (only required for server side)
+ <!--- 4. H264 Codec 1.8 for FFMPEG. Download [here](https://github.com/cisco/openh264/releases) -->
+ <!-- 5.-->
  4. Optional: [GNU Screen](https://www.gnu.org/software/screen/) (helpful for server side)
 
 ## Deploying the system:
@@ -33,22 +35,26 @@ The Socket Server and Web Server must run on the same machine, whereas the clien
 
   **a)** Create a .env file with default values:
 
-    echo "MAX_CLIENTS=5" >> .env && echo "SECONDS=30" >> .env && echo "RECORDING_TYPE=mp4" >> .env && echo "GMAIL_USER=" >> .env && echo "GMAIL_APP_PASSWORD=" >> .env
+    echo "MAX_CLIENTS=5" > .env && echo "SECONDS=30" >> .env && echo "RECORDING_TYPE=mp4" >> .env && echo "GMAIL_USER=" >> .env && echo "GMAIL_APP_PASSWORD=" >> .env
 
-  The default values are:
-  - **MAX_CLIENTS:** The maximum number of clients that can connect to the server at one time
-  - **SECONDS:** The number of seconds that are recorded before and after motion is detected
-  - **RECORDING_TYPE:** The type of video recordings that are produced by the server. `mp4` and `avi` are the only accepted options.
-  - **GMAIL_USER:** (email address that you can connect for alerts)
-  - **nGMAIL_APP_PASSWORD:** unset (app-specific password generated for secure access for this app only. More information [here](https://support.google.com/accounts/answer/185833?hl=en))
+  The Environment Variables and their default values are:
+  - **MAX_CLIENTS:** 5 - The maximum number of clients that can connect to the server at one time
+  - **SECONDS:** 30 - The number of seconds that are recorded before and after motion is detected
+  - **RECORDING_TYPE:** mp4 - The type of video recordings that are produced by the server. `mp4` and `avi` are the only accepted options.
+  - **GMAIL_USER:** unset
+  - **GMAIL_APP_PASSWORD:** unset
 
-  **b)** Create the necessary storage directories and files:
+  Learn about connecting gmail account with app-specific passwords [here](https://support.google.com/accounts/answer/185833?hl=en).
+
+**b)** Create the necessary storage directories and files:
 
     mkdir static/recordings && mkdir data && mkdir data/stream_frames && touch data/whitelist.txt data/blacklist.txt && echo "0" > data/clients.txt && echo "on" > data/alarm_status.txt
 
-  **c)** Create subfolders for the client frames:
+**c)** Create subfolders for the client frames:
 
-    mkdir data/stream_frames/1 data/stream_frames/2 data/stream_frames/3 data/stream_frames/4 data/stream_frames/5
+    cd data/stream_frames && mkdir 1 2 3 4 5 && cd ../../
+
+  If you have changed the value of `MAX_CLIENTS` from its default value of 5, be sure to include all numbers from 1 to `MAX_CLIENTS` in the `mkdir` command.
 
 ### 3) Manually install Python 3.8.5 (or later) and Pip
   Visit [Python's official website](https://www.python.org/) > Downloads > Python 3.8.5 or later > follow the instructions specific to your operating system.
