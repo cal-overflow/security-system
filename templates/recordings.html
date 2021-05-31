@@ -21,7 +21,10 @@
               <ul id="recording_list" class="no-padding-margin">
                 {% for subItem in item.children recursive %}
                   {% set hour = subItem.name[29:31] | int %}
-                  {% if hour < 12 %}
+                  {% if hour == 0 %}
+                    {% set hour = 12 %}
+                    {% set meridiem = 'am' %}
+                  {% elif hour < 12 %}
                     {% set meridiem = 'am' %}
                   {% elif hour == 12 %}
                     {% set meridiem = 'pm' %}
@@ -31,14 +34,14 @@
                   {% endif %}
                   {% set camera = subItem.name[subItem.name.find('CAM') + 3: subItem.name.find('CAM') + 4] %}
                   {% set minute = subItem.name[32:subItem.name.find('CAM') - 3] %}
-                  <li class="recording_item"><a href="{{subItem.name}}">{{ '{}:{} {}'.format(hour, minute, meridiem) }}</a> | Camera {{ camera }}</li>
+                  <li class="recording_item"><a href="{{ url_for('watch_video', video=subItem.name) }}">{{ '{}:{} {}'.format(hour, minute, meridiem) }}</a> | Camera {{ camera }}</li>
                 {% endfor %}
               </ul>
             {% endif %}
           {% endfor %}
         </div>
         {% endif %}
-        <p class="ml-5"><a href="{{ url_for('index') }}" title="Back to security feed">Back to security feed</a></p>
+        <h5 class="ml-5"><a href="{{ url_for('index') }}" title="Back to security feed">Back to security feed</a></h5>
   </div>
   <footer>
     <p>

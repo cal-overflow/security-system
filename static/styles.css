@@ -78,6 +78,16 @@ a:hover { text-decoration: none; }
   text-decoration: none;
 }
 
+#recording_playback {
+  width: 90%;
+  max-width: 1080px;
+  margin: 0 auto;
+}
+#recording_playback video {
+  width: 100%;
+  height: auto;
+}
+
 footer  {
   padding-top: 10px;
   background-color: #14171c;

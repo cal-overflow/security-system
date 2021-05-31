@@ -38,7 +38,7 @@ The Socket Server and Web Server must run on the same machine, whereas the clien
   The default values are:
   - **MAX_CLIENTS:** The maximum number of clients that can connect to the server at one time
   - **SECONDS:** The number of seconds that are recorded before and after motion is detected
-  - **RECORDING_TYPE:** The type of video recordings that are produced by the server. `mp4` and `avi` are the only acceptable options.
+  - **RECORDING_TYPE:** The type of video recordings that are produced by the server. `mp4` and `avi` are the only accepted options.
   - **GMAIL_USER:** (email address that you can connect for alerts)
   - **nGMAIL_APP_PASSWORD:** unset (app-specific password generated for secure access for this app only. More information [here](https://support.google.com/accounts/answer/185833?hl=en))
 

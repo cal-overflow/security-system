@@ -31,6 +31,10 @@ def video_recordings():
     path = 'static/recordings'
     return render_template('recordings.html', list=list_files(path))
 
+@app.route('/watch_video/<path:video>')
+def watch_video(video):
+    return render_template('watch_video.html', video=video)
+
 def list_files(path):
     '''List the contents of the given directory'''
     # Extremely helpful resource: https://stackoverflow.com/a/10961991

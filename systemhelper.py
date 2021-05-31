@@ -43,7 +43,7 @@ def record(frames, already_recording, id):
         #stop the recording. Write to a video file
         print('writing recording to file')
 
-        # Ensure that user has the correct video type
+        # Ensure that user has a correct video type
         if RECORDING_TYPE == 'mp4':
             fourcc = cv.VideoWriter_fourcc(*'FMP4')
         elif RECORDING_TYPE == 'avi':
@@ -65,6 +65,7 @@ def record(frames, already_recording, id):
     return movement_lately, output_file
 
 def alert(id):
+    return # TODO: remove
     '''Notify (via email) that motion has been detected.'''
     gmail_user = ENV('GMAIL_USER')
     gmail_password = ENV('GMAIL_APP_PASSWORD')
@@ -82,6 +83,8 @@ def alert(id):
     %s
     """ % (sent_from, ", ".join(to), subject, body)
 
+    if len(to) == 0:
+        return
     try:
         server = smtplib.SMTP_SSL('smtp.gmail.com', 465)
         server.ehlo()
@@ -92,61 +95,6 @@ def alert(id):
         print('Movement detected. Alerts successfully sent.')
     except:
         print('There was an issue sending alerts.')
-
-def calibrateCamera():
-    '''Calibrate the camera. Get the true FPS (including processing) from the camera'''
-    print('{} [CLIENT]: Calibrating camera'.format(TIMESTAMP))
-    camera = cv.VideoCapture(0)
-    width = camera.get(cv.CAP_PROP_FRAME_WIDTH)
-    height = camera.get(cv.CAP_PROP_FRAME_HEIGHT)
-
-    # Adjust frame size if it is excessively large
-    while width * height  >= 1000000:
-        width *= 0.75
-        height *= 0.75
-
-    # OpenCV will override input and round to the closest (recognized) resolution. For example, I set res to 1900x1070 and it will override as 1920x1080.
-    camera.set(3, width)
-    camera.set(4, height)
-
-    if not camera.isOpened():
-        # Attempt to open capture device once more, after a failure
-        camera.open()
-        if not camera.isOpened():
-            print('{} [CLIENT]: Issue opening camera'.format(TIMESTAMP))
-            exit()
-
-    start_time = time.time()
-    count = 0
-    while int(time.time() - start_time) < 10:
-        ret, frame = camera.read()
-        count += 1 # number of frames
-
-    return camera, int(count / 10)
-
-def detectMotion(f1, f2, WIDTH, HEIGHT):
-    '''Detect motion given two frames. Returns boolean and frame with motion area outlined.'''
-    # Helpful Source: Divyanshu Shekhar - https://divyanshushekhar.com/motion-detection-opencv/
-    difference = cv.absdiff(f1, f2)
-    gray_difference = cv.cvtColor(difference, cv.COLOR_BGR2GRAY)
-    blur = cv.GaussianBlur(gray_difference, (5, 5), 0)
-    __, thresh = cv.threshold(blur, 20, 255, cv.THRESH_BINARY)
-    dilated = cv.dilate(thresh, None, iterations=3)
-    contours, __ = cv.findContours(dilated, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
-
-    detected = False
-    frame = f1.copy()
-    for contour in contours:
-
-        (x, y, w, h) = cv.boundingRect(contour)
-        # Place date on frame regardless of any movement
-        if cv.contourArea(contour) >= THRESHOLD:
-            detected = True
-
-            cv.rectangle(frame, (x, y), (x+w, y+h), (255, 255, 255), 1)
-            cv.putText(frame, 'MOTION', (10, 20), cv.FONT_HERSHEY_PLAIN, 1.25, (0, 0, 224), 2, cv.FILLED, False)
-
-    return detected, frame
 
 def drawTime(frame, WIDTH, HEIGHT):
     '''Draw the date/time on the given frame.'''
