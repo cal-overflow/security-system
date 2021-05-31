@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <head>
-<title>Stream</title>
+<title>Watch Video | {{ video[video.find('s/') + 2:video.find('CAM')].replace('/', ' ').replace('-', '/').replace('_', ':') }} | Security System</title>
 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles.css') }}">
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 </head>
@@ -10,7 +10,7 @@
       <h1 class="center title"><a href="{{ url_for('index')}}">Security System</a></h1>
       <h2 class="center">{{ video[video.find('s/') + 2:video.find('CAM')].replace('/', ' | ').replace('-', '/').replace('_', ':') }}<br />Camera {{video[video.find('CAM') + 3: video.find('CAM') + 4]}}</h2>
         <div id="recording_playback" class="center">
-          <video controls>
+          <video controls muted>
             <source src="/{{ video }}" type="video/mp4">
               Your browser does not support video playback
           </video>
