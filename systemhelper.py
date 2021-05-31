@@ -10,7 +10,7 @@ from decouple import config as ENV
 # CONSTANTS
 ###############################################
 
-THRESHOLD = 10000 # Movement detection threshold
+THRESHOLD = 7500 # Movement detection threshold
 STANDBY_FRAME = cv.imread('static/standby.jpg', cv.IMREAD_UNCHANGED)
 PACKAGE_SIZE = struct.calcsize("P")
 MAX_CLIENTS = int(ENV('MAX_CLIENTS'))
@@ -65,7 +65,6 @@ def record(frames, already_recording, id):
     return movement_lately, output_file
 
 def alert(id):
-    return # TODO: remove
     '''Notify (via email) that motion has been detected.'''
     gmail_user = ENV('GMAIL_USER')
     gmail_password = ENV('GMAIL_APP_PASSWORD')

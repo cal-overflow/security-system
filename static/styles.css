@@ -3,6 +3,7 @@ html { background-color: #14171c; }
 body  { background-color: #f2f2f2; }
 HR  { color: #2e2e2e; }
 * { font-size: 1.125em; }
+p, h1, h2, h3, h4, h5, h6 { font-size: 1.25em; }
 a  { color: #e02b20; }
 a:hover { text-decoration: none; }
 .container  { width: 100%; }
@@ -22,7 +23,9 @@ a:hover { text-decoration: none; }
 .rounded { border-radius: 5px; }
 .button { background-color: #e0e0e0;}
 .ml-5 { margin-left: 5%; }
+.mr-5 { margin-right: 5%; }
 .no-decoration { text-decoration: none; }
+
 
 /*#all_streams, .stream_container, .stream_container_odd {  }*/
 

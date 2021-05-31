@@ -10,8 +10,11 @@
       <h1 class="center title"><a href="{{ url_for('index')}}">Security System</a></h1>
       <h2 class="center">Recordings</h2>
         {% if list.size == 0 %}
+        <HR>
+        <div class="center">
           <h3>No recordings</h3>
           <p>Future recordings will be found here<br /></p>
+        </div>
         {% else %}
         <div id="recordings_container" class="center">
           {% for item in list.children recursive %}

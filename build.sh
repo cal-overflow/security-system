@@ -10,11 +10,15 @@ do
   read -p "[PROMPT] Enter \"client\" or \"server\": " choice
   if [ $choice == "client" ] || [ $choice == "Client" ]; then
     deploy="CLIENT"
+    echo "MAX_CLIENTS=5" > .env
+    echo "RECORDING_TYPE=mp4" >> .env
+    echo "SECONDS=30" >> .env
+    echo "GMAIL_USER=" >> .env
+    echo "GMAIL_APP_PASSWORD=" >> .env
     break
   elif [ $choice == "server" ] || [ $choice == "Server" ]; then
     deploy="SERVER"
 
-    # Build the environment folders and files needed for storing data (Server side only).
     echo ""
     echo "[${deploy} BUILD] Constructing data storage directories, setting data values, and creating essential storage files."
 
@@ -30,13 +34,13 @@ do
     done
 
     echo "[PROMPT] Setting environment variables."
-    echo "[PROMPT] Type \"default\" if you would like to use the default value."
+    echo "[PROMPT] Enter nothing if you would like to use the default value."
     while true;
     do
       read -p "[PROMPT] Enter the maximum number of clients that can connect at once: " max
       if [[ $max =~ ^[+-]?[0-9]+$ ]]; then
         break
-      elif [[ $max == "default" ]] || [[ $max == "Default" ]]; then
+      elif [[ $max == "" ]] || [[ $max == "default" ]]; then
         max=5
         break
       fi
@@ -47,7 +51,7 @@ do
       read -p "[PROMPT] Enter the number of seconds that will be recorded before and after movement is detected: " seconds
       if [[ $seconds =~ ^[+-]?[0-9]+$ ]]; then
         break
-      elif [[ $seconds == "default" ]] || [[ $seconds == "Default" ]]; then
+      elif [[ $seconds == "" ]] || [[ $seconds == "default" ]]; then
         seconds=30
         break
       fi
@@ -57,9 +61,9 @@ do
     while true;
     do
       read -p "[PROMPT] Enter \"mp4\" or \"avi\": " recording
-      if [ $recording == "mp4" ] || [ $recording == "avi" ]; then
+      if [[ $recording == "mp4" ]] || [[ $recording == "avi" ]]; then
         break
-      elif [[ $recording == "default" ]] || [[ $recording == "Default" ]]; then
+      elif [[ $recording == "" ]] || [[ $recording == "default" ]]; then
         recording="mp4"
         break
       fi
@@ -82,8 +86,7 @@ do
 
     echo "GMAIL_APP_PASSWORD=${red}unset${reset}"
     echo "GMAIL_APP_PASSWORD=" >> .env
-    #echo "MAX_CLIENTS=${max}\nRECORDING_TYPE=${recording}\nSECONDS=${seconds}\nGMAIL_USER=\nGMAIL_APP_PASSWORD=" > .env
-    fi
+  fi
 
     for i in `seq 1 $max`
     do

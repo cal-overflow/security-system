@@ -10,6 +10,8 @@ PORT = 8080
 CLIENTS = []
 PROCESSES = []
 FRAMES = {}
+MAX_CLIENTS = int(helper.ENV('MAX_CLIENTS'))
+SECONDS = int(helper.ENV('SECONDS'))
 
 def stream_camera(client, address, id):
     '''Stream video from a client'''
