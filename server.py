@@ -145,7 +145,7 @@ def record(frames, already_recording, SECONDS, id):
 
     if not movement_lately:
         #stop the recording. Write to a video file
-        print('{} [SERVER] Saving recording from Client {} '.format(helper.timestamp(), id))
+        print('{} [SERVER]: Saving recording from Client {} '.format(helper.timestamp(), id))
 
         # Ensure that user has a correct video type
         if ENV('RECORDING_TYPE') == 'mp4':
@@ -169,7 +169,7 @@ def record(frames, already_recording, SECONDS, id):
     return movement_lately, output_file
 
 def alert(id):
-    
+
     '''Notify (via email) that motion has been detected.'''
     gmail_user = ENV('GMAIL_USER')
     gmail_password = ENV('GMAIL_APP_PASSWORD')
@@ -196,9 +196,9 @@ def alert(id):
         server.sendmail(sent_from, to, email_text)
         server.close()
 
-        print('{} [SERVER] Movement detected. Alerts successfully sent.'.format(helper.timestamp()))
+        print('{} [SERVER]: Movement detected. Alerts successfully sent.'.format(helper.timestamp()))
     except:
-        print('{} [SERVER] There was an issue sending alerts.'.format(helper.timestamp()))
+        print('{} [SERVER]: There was an issue sending alerts.'.format(helper.timestamp()))
 
 def disconnect(client, address, FRAMES, id):
     '''Handle client disconnection'''

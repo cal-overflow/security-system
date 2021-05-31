@@ -1,17 +1,11 @@
-# Helpful functions and constants used by webserver, server, and client scripts
+# Helpful constants and functions used by webserver, server, and client scripts
 import cv2 as cv
 import smtplib
 import struct
 from pathlib import Path
 import datetime, time, math
 
-###############################################
-# CONSTANTS
 PACKAGE_SIZE = struct.calcsize("P")
-
-###############################################
-# HELPER FUNCTIONS
-###############################################
 
 def timestamp():
     '''Returns the current date and time in the preferred format'''
