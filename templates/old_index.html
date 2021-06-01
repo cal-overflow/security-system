@@ -1,55 +1,44 @@
 <!DOCTYPE html>
 <head>
-  <title>Terminal | Security System | {{ clients }} Connected</title>
-  <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles.css') }}">
-  <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
+    <title>Live Camera Feed | Security System | {{ clients }} Connected</title>
+<link rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles.css') }}">
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 </head>
 <body>
   <div id="main_container" class="container no-padding-margin">
     <p id="logo"><a><img src="{{ url_for('static', filename='cl-icon.png')}}" /></a></p>
       <h1 class="center title"><a href="{{ url_for('index')}}">Security System</a></h1>
-      <h2 class="center">Terminal</h2>
       <HR>
           {% if clients == 0 %}
             <h3 class="off center">No cameras are connected</h3>
           {% else %}
             <p class="center">Cameras connected: {{ clients }}</p>
-            <div id="all_thumbnails" >
+            <div id="all_streams" >
           {% endif %}
 
 
           {% if clients > 0 and clients % 2 != 0%}
 
             {% for i in range(1, clients) %}
-              <div class="thumbnail_container">
-                <a href="{{ url_for('watch_stream', id=clients )}}">
-                  <img class="stream_thumbnail" src="{{ url_for('video_thumbnail', id=i) }}" /><br />
-                  Camera {{ i }}
-                </a>
+              <div class="stream_container">
+                <img class="stream_frame" src="{{ url_for('video_feed', id=i) }}" onclick="window.open(this.src);">
               </div>
             {% endfor %}
 
-            <div class="thumbnail_container_odd">
-              <a href="{{ url_for('watch_stream', id=clients )}}">
-                <img class="stream_thumbnail" src="{{ url_for('video_thumbnail', id=clients) }}" /><br />
-                Camera {{ clients }}
-              </a>
+            <div class="stream_container_odd">
+              <img class="stream_frame" src="{{ url_for('video_feed', id=clients) }}" onclick="window.open(this.src);">
             </div>
 
           {% else %}
             {% for i in range(0, clients) %}
-              <div class="thumnail_container">
-                <a href="{{ url_for('watch_stream', id=clients )}}">
-                  <img class="stream_thumbnail" src="{{ url_for('video_thumbnail', id=i+1) }}" /><br />
-                  Camera {{ i + 1 }}
-                </a>
+              <div class="stream_container">
+                <img class="stream_frame" src="{{ url_for('video_feed', id=i+1) }}" onclick="window.open(this.src);">
               </div>
             {% endfor %}
 
         {% endif %}
       {% if clients > 0 %}
         </div>
-        <p class="mr-5 align-right">Click on a thumbnail to view the live camera feed</p>
       {% endif%}
 
       <div id="extras_container">

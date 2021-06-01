@@ -22,6 +22,10 @@ def index():
     # Return page template
     return render_template('index.html', clients=getClientCount(), status=getStatus())
 
+@app.route('/video_thumbnail/<id>')
+def video_thumbnail(id):
+    return Response(getClientStream(id, True), mimetype='multipart/x-mixed-replace; boundary=frame')
+
 @app.route('/video_feed/<id>')
 def video_feed(id):
     return Response(getClientStream(id), mimetype='multipart/x-mixed-replace; boundary=frame')
@@ -30,6 +34,10 @@ def video_feed(id):
 def video_recordings():
     path = 'static/recordings'
     return render_template('recordings.html', list=list_files(path))
+
+@app.route('/watch_stream/<id>')
+def watch_stream(id):
+    return render_template('watch_stream.html', id=id)
 
 @app.route('/watch_video/<path:video>')
 def watch_video(video):
@@ -52,8 +60,8 @@ def list_files(path):
             list['size'] += 1
     return list
 
-def getClientStream(id):
-    '''Get a client stream given their id'''
+def getClientStream(id, thumbnail_only=False):
+    '''Get a client stream given their id. Yield a single frame if only a thumbnail_only is needed'''
     while True:
         if readLock(id) == 'unlocked':
             lock(id)
@@ -73,6 +81,10 @@ def getClientStream(id):
 
             yield(b'--frame\r\n'
                         b'Content-Type: image/jpeg\r\n\r\n' + message + b'\r\n')
+
+            if thumbnail_only:
+                return
+
             time.sleep(.125)
 
 if __name__ == '__main__':

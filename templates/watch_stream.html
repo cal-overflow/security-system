@@ -1,6 +1,6 @@
 <!DOCTYPE html>
 <head>
-<title>Watch Video | {{ video[video.find('s/') + 2:video.find('CAM')].replace('/', ' ').replace('-', '/').replace('_', ':') }} | Security System</title>
+<title>Live Camera Feed | Security System | Camera {{ id }}</title>
 <link rel="stylesheet" type="text/css" href="{{url_for('static', filename='styles.css') }}">
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.9.1/jquery.min.js"></script>
 </head>
@@ -8,17 +8,16 @@
   <div id="main_container" class="container no-padding-margin">
     <p id="logo"><a><img src="{{ url_for('static', filename='cl-icon.png')}}" /></a></p>
       <h1 class="center title"><a href="{{ url_for('index')}}">Security System</a></h1>
+      <h2 class="center">Live Feed</h2>
       <HR>
-      <h2 class="center">{{ video[video.find('s/') + 2:video.find('CAM')].replace('/', ' | ').replace('-', '/').replace('_', ':') }}<br />Camera {{video[video.find('CAM') + 3: video.find('CAM') + 4]}}</h2>
-        <div id="recording_playback" class="center">
-          <video controls autoplay muted>
-            <source src="/{{ video }}" type="video/mp4">
-              Your browser does not support video playback
-          </video>
+      <h3 class="center">Camera {{ id }}</h3>
+
+        <div id="stream_viewer" class="center">
+          <img class="zoom-cursor" src="{{ url_for('video_feed', id=id)}}" onclick="window.open(this.src);"/>
         </div>
-        <p class="mr-10 align-right"><a href="/{{ video }}" download>Download video</a></p>
+
         <h5 class="ml-5"><a href="{{ url_for('index') }}" title="Back to security feed">Back to security terminal</a></h5>
-        <h5 class="ml-5"><a href="{{ url_for('video_recordings') }}" title="Back to recordings">Back to recordings</a></h5>
+        <h5 class="ml-5"><a href="{{ url_for('video_recordings') }}" title="Back to recordings">View Recordings</a></h5>
   </div>
   <footer>
       <div><p>Created by <a href="http://christianlisle.com" target="_blank" title="Learn about Christian">Christian Lisle</a></p></div>

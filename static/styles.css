@@ -17,7 +17,7 @@ a:hover { text-decoration: none; }
 .center { text-align: center; }
 .align-left { text-align: left; }
 .align-right { text-align: right; }
-.stream_frame {cursor: zoom-in; }
+.zoom-cursor { cursor: zoom-in; }
 .half-width { width: 50%; }
 .float-left { float: left; }
 .float-right { float: right; }
@@ -30,9 +30,6 @@ a:hover { text-decoration: none; }
 .mr-10 { margin-right: 10%; }
 .no-decoration { text-decoration: none; }
 
-
-/*#all_streams, .stream_container, .stream_container_odd {  }*/
-
 #main_container {
   min-height: 60vh;
 }
@@ -42,17 +39,17 @@ a:hover { text-decoration: none; }
   margin-top: 0px;
   text-align: center;
 }
+
 #logo img {
   width: 64px;
   height: auto;
 }
 
-#all_streams  {
+#all_thumbnails  {
   overflow: auto;
   width: 96%;
   margin: 0 auto;
-  border-radius: 3px;
-  background: #2e2e2e;
+  border-radius: 5px;
 }
 
 #toggle_form  {
@@ -62,18 +59,19 @@ a:hover { text-decoration: none; }
   text-align: center;
 }
 
-.stream_container, .stream_container_odd {
+.thumbnail_container, .thumbnail_container_odd {
   margin: 10px 0 5px 0;
   padding: 10px 0 5px 0;
   text-align: center;
 }
 
-.stream_frame {
-  min-width: 480px;
-  max-width: 1280px;
-  max-height: 100%;
+.stream_thumbnail {
+  min-width: 240px;
+  width: 100%;
+  max-width: 480px;
+  height: auto;
   margin: 0 auto;
-  border-radius: 3px;
+  border-radius: 5px;
 }
 
 .recording_item {
@@ -86,14 +84,21 @@ a:hover { text-decoration: none; }
   text-decoration: none;
 }
 
-#recording_playback {
+#stream_viewer, #recording_playback {
+  background-color: #2e2e2e;
   width: 90%;
   max-width: 1080px;
+  padding: 2.5%;
   margin: 0 auto;
+  border-radius: 5px;
 }
-#recording_playback video {
+
+#stream_viewer img, #recording_playback video {
+  min-width: 300px;
   width: 100%;
+  max-width: 1920px;
   height: auto;
+  border-radius: 5px;
 }
 
 footer  {
@@ -104,51 +109,46 @@ footer  {
   text-align: center;
   overflow: auto;
 }
+
 footer a  { color: #e02b20; }
 
 footer a:link, footer a:visited {
   text-decoration: none;
 }
+
 footer a:hover  {
   text-decoration: underline;
 }
 
 @media only screen and (orientation: portrait)  {
-  #all_streams  {
+  #all_thumbnails  {
     max-width: 1400px;
     width: 98%;
   }
-  .stream_frame {
-    width: 98%;
-    height: auto;
-    margin: 0 auto;
-  }
+
   #extras_container div, footer div  { width: 100%; }
 }
 
 @media only screen and (orientation: landscape) {
-  .stream_container {
+  .thumbnail_container {
     width: 50%;
     height: auto;
     float: left;
     text-align: center;
   }
-  .stream_container_odd {
+
+  .thumbnail_container_odd {
     width: 100%;
     height: auto;
     float: left;
     text-align: center;
   }
-  .stream_frame  {
-    width: 90%;
-    max-width: 900px;
-    max-height: 800px;
-    margin: 0 auto;
-  }
+
   #extras_container div, footer div  {
     width: 50%;
     float: left;
   }
+
   .recording_item {
     width: 50%;
     float: left;
