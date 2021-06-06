@@ -133,4 +133,4 @@ if __name__ == '__main__':
     try:
         main()
     except Exception as e:
-        print('{}[CLIENT]: Exiting Script because of error. Cause: {}'.format(timestamp(), e))
+        print('{} [CLIENT]: Exiting Script because of error. Cause: {}'.format(timestamp(), e))

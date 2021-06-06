@@ -109,3 +109,14 @@ The Socket Server and Web Server must run on the same machine, whereas the clien
   By default, the flask (web) server runs on port `8000`. You can view the website by visiting `http://serverIP:8000` on your browser, where `serverIP` is the local IP address of the machine acting as the Server.
 
   If you are trying to view the server from an outside network, then you will have to use the public IP address of the server, and might have to deal with some advanced networking. If that is the case, you may want to consider [port forwarding](https://en.wikipedia.org/wiki/Port_forwarding) and learning about [static vs. dynamic IP addresses](https://support.google.com/fiber/answer/3547208?hl=en).
+
+### Troubleshooting
+##### [OpenCV - Import Error](https://stackoverflow.com/a/56972113)
+
+##### [OpenCV - The function is not implemented](https://stackoverflow.com/questions/14655969/opencv-error-the-function-is-not-implemented)
+
+##### *cvWaitKey - the function is not implemented*
+
+Try uninstalling opencv-headless and installing normal opencv. Use a variant of the command listed below
+
+    pip uninstall opencv-python-headless && pip install opencv-python
