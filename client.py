@@ -28,7 +28,7 @@ def main():
     connection_failed = False
 
     while camera.isOpened():
-        detected_motion, motion_frame = detectMotion(frame1, frame2, int(camera.get(3)), int(camera.get(4)))
+        detected_motion, motion_frame = detectMotion(frame1, frame2)
         frame = drawTime(motion_frame, int(camera.get(3)), int(camera.get(4)))
         data = {'FRAME': frame,
                 'MOTION': detected_motion,
@@ -105,10 +105,10 @@ def calibrateCamera():
 
     return camera, int(count / 10)
 
-def detectMotion(f1, f2, WIDTH, HEIGHT):
+def detectMotion(frame1, frame2):
     '''Detect motion given two frames. Returns boolean and frame with motion area outlined.'''
     # Helpful Source: Divyanshu Shekhar - https://divyanshushekhar.com/motion-detection-opencv/
-    difference = cv.absdiff(f1, f2)
+    difference = cv.absdiff(frame1, frame2)
     gray_difference = cv.cvtColor(difference, cv.COLOR_BGR2GRAY)
     blur = cv.GaussianBlur(gray_difference, (5, 5), 0)
     __, thresh = cv.threshold(blur, 20, 255, cv.THRESH_BINARY)
@@ -116,7 +116,7 @@ def detectMotion(f1, f2, WIDTH, HEIGHT):
     contours, __ = cv.findContours(dilated, cv.RETR_TREE, cv.CHAIN_APPROX_SIMPLE)
 
     detected = False
-    frame = f1.copy()
+    frame = frame1.copy()
     for contour in contours:
 
         (x, y, w, h) = cv.boundingRect(contour)
@@ -133,4 +133,4 @@ if __name__ == '__main__':
     try:
         main()
     except Exception as e:
-        print('{} [CLIENT]: Exiting Script because of error. Cause: {}'.format(timestamp(), e))
+        print('{} [CLIENT]: Exiting script because of error:\n{}'.format(timestamp(), e))
